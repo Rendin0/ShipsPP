@@ -10,7 +10,7 @@ void Game::fieldsPrint(std::vector<int> point)
 	std::vector<std::vector<int>> field1 = (turn ? player2.getField() : player1.getField());
 	std::vector<std::vector<int>> field2 = (turn ? player1.getField() : player2.getField());
 	std::cout << "Player " << turn + 1 << std::endl;
-	fieldPrint(field1, false, {-1, -1});
+	fieldPrint(field1, false, { -1, -1 });
 	std::cout << "\n\n\n";
 	std::cout << "Player " << (turn ? "1" : "2") << std::endl;
 	fieldPrint(field2, true, point);
@@ -66,12 +66,19 @@ void Game::attack()
 				switch (enemy_field.at(point.at(0)).at(point.at(1)))
 				{
 				case 0:
+					std::thread([]() {PlaySound(L"uh.wav", NULL, SND_ASYNC); }).join();
+
 					(turn ? player1.setPoint(point, 3) : player2.setPoint(point, 3));
+					system("cls");
+					fieldsPrint(point);
 					break_point = true;
 					break;
 				case 1:
+					std::thread([]() {PlaySound(L"nyafa.wav", NULL, SND_ASYNC); }).join();
+
 					(turn ? player1.setPoint(point, 2) : player2.setPoint(point, 2));
-					break_point = true;
+					system("cls");
+					fieldsPrint(point);
 					break;
 				default:
 					break;
@@ -79,7 +86,7 @@ void Game::attack()
 			}
 		}
 	}
-} 
+}
 
 int Game::getState()
 {
@@ -101,7 +108,6 @@ int Game::getState()
 
 void Game::changeTurn()
 {
-	system("cls");
 
 	std::cout << "Next turn!\n";
 	system("pause");
@@ -109,7 +115,7 @@ void Game::changeTurn()
 	turn = !turn;
 }
 
-int game()
+int localGame()
 {
 	Game game1;
 

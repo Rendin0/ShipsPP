@@ -45,29 +45,42 @@ std::vector<std::vector<std::vector<int>>> fieldCreate()
 				case 72:
 				{
 					if (row > 0)
+					{
+						std::thread([]() {PlaySound(L"na.wav", NULL, SND_ASYNC); }).join();
 						--row;
+					}
 					break;
 				}
 				case 75:
 				{
 					if (line > 0)
+					{
+						std::thread([]() {PlaySound(L"na.wav", NULL, SND_ASYNC); }).join();
 						--line;
+					}
 					break;
 				}
 				case 77:
 				{
 					if (line < (10 - (pow(i, !direction))))
+					{
+						std::thread([]() {PlaySound(L"na.wav", NULL, SND_ASYNC); }).join();
 						++line;
+					}
 					break;
 				}
 				case 80:
 				{
 					if (row < (10 - (pow(i, direction))))
+					{
+						std::thread([]() {PlaySound(L"na.wav", NULL, SND_ASYNC); }).join();
 						++row;
+					}
 					break;
 				}
 				case 32:
 				{
+					std::thread([]() {PlaySound(L"na.wav", NULL, SND_ASYNC); }).join();
 					direction = !direction;
 					if (row + (direction * i) > 10 || line + (!direction * i) > 10)
 					{
@@ -108,6 +121,7 @@ std::vector<std::vector<std::vector<int>>> fieldCreate()
 					}
 					if (aviable)
 					{
+						std::thread([]() {PlaySound(L"juf.wav", NULL, SND_ASYNC); }).join();
 						std::vector<int> ship;
 						ship.push_back(direction);
 						for (int j = 0; j < i; j++)

@@ -5,6 +5,8 @@
 #include <conio.h>
 #include <Windows.h>
 #include <ctime>
+#include <thread>
+#pragma comment(lib, "winmm.lib")
 
 class Player
 {
@@ -34,7 +36,7 @@ public:
 	int getState();
 	void changeTurn();
 };
-int game();
+int localGame();
 
 int menu(int state);
 int choice(std::vector<std::string> str);
