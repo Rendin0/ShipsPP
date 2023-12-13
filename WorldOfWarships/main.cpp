@@ -10,7 +10,7 @@ int main()
 		Sleep(500);
 		state = !state;
 	}
-	std::cout << "Bye";
+	std::cout << "Bye. Have a nice day!";
 
 	return 0;
 }
