@@ -46,7 +46,7 @@ std::vector<std::vector<std::vector<int>>> fieldCreate()
 				{
 					if (row > 0)
 					{
-						std::thread([]() {PlaySound(L"sounds/na.wav", NULL, SND_ASYNC); }).join();
+						std::thread([]() {PlaySound(L"sounds/move.wav", NULL, SND_ASYNC); }).join();
 						--row;
 					}
 					break;
@@ -55,7 +55,7 @@ std::vector<std::vector<std::vector<int>>> fieldCreate()
 				{
 					if (line > 0)
 					{
-						std::thread([]() {PlaySound(L"sounds/na.wav", NULL, SND_ASYNC); }).join();
+						std::thread([]() {PlaySound(L"sounds/move.wav", NULL, SND_ASYNC); }).join();
 						--line;
 					}
 					break;
@@ -64,7 +64,7 @@ std::vector<std::vector<std::vector<int>>> fieldCreate()
 				{
 					if (line < (10 - (pow(i, !direction))))
 					{
-						std::thread([]() {PlaySound(L"sounds/na.wav", NULL, SND_ASYNC); }).join();
+						std::thread([]() {PlaySound(L"sounds/move.wav", NULL, SND_ASYNC); }).join();
 						++line;
 					}
 					break;
@@ -73,14 +73,14 @@ std::vector<std::vector<std::vector<int>>> fieldCreate()
 				{
 					if (row < (10 - (pow(i, direction))))
 					{
-						std::thread([]() {PlaySound(L"sounds/na.wav", NULL, SND_ASYNC); }).join();
+						std::thread([]() {PlaySound(L"sounds/move.wav", NULL, SND_ASYNC); }).join();
 						++row;
 					}
 					break;
 				}
 				case 32:
 				{
-					std::thread([]() {PlaySound(L"sounds/na.wav", NULL, SND_ASYNC); }).join();
+					std::thread([]() {PlaySound(L"sounds/move.wav", NULL, SND_ASYNC); }).join();
 					direction = !direction;
 					if (row + (direction * i) > 10 || line + (!direction * i) > 10)
 					{
@@ -121,7 +121,7 @@ std::vector<std::vector<std::vector<int>>> fieldCreate()
 					}
 					if (aviable)
 					{
-						std::thread([]() {PlaySound(L"sounds/juf.wav", NULL, SND_ASYNC); }).join();
+						std::thread([]() {PlaySound(L"sounds/confirm.wav", NULL, SND_ASYNC); }).join();
 						std::vector<int> ship;
 						ship.push_back(direction);
 						for (int j = 0; j < i; j++)

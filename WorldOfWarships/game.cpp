@@ -66,7 +66,7 @@ void Game::attack()
 				switch (enemy_field.at(point.at(0)).at(point.at(1)))
 				{
 				case 0:
-					std::thread([]() {PlaySound(L"sounds/uh.wav", NULL, SND_ASYNC); }).join();
+					std::thread([]() {PlaySound(L"sounds/miss.wav", NULL, SND_ASYNC); }).join();
 
 					(turn ? player1.setPoint(point, 3) : player2.setPoint(point, 3));
 					system("cls");
@@ -74,7 +74,7 @@ void Game::attack()
 					break_point = true;
 					break;
 				case 1:
-					std::thread([]() {PlaySound(L"sounds/nyafa.wav", NULL, SND_ASYNC); }).join();
+					std::thread([]() {PlaySound(L"sounds/hit.wav", NULL, SND_ASYNC); }).join();
 
 					(turn ? player1.setPoint(point, 2) : player2.setPoint(point, 2));
 					system("cls");

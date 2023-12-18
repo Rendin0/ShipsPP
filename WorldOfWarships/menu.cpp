@@ -64,14 +64,14 @@ int choice(std::string text, std::vector<std::string> str)
 			}
 			case 13:
 			{
-				std::thread([]() {PlaySound(L"sounds/juf.wav", NULL, SND_ASYNC); }).join();
+				std::thread([]() {PlaySound(L"sounds/confirm.wav", NULL, SND_ASYNC); }).join();
 				return cho;
 			}
 			default:
 				break;
 			}
 			system("cls");
-			std::thread([]() {PlaySound(L"sounds/na.wav", NULL, SND_ASYNC); }).join();
+			std::thread([]() {PlaySound(L"sounds/move.wav", NULL, SND_ASYNC); }).join();
 			std::cout << text << std::endl << std::endl;
 			for (size_t i = 0; i < str.size(); i++)
 			{
@@ -108,14 +108,14 @@ int choice(std::vector<std::string> str)
 			}
 			case 13:
 			{
-				std::thread([]() {PlaySound(L"sounds/juf.wav", NULL, SND_ASYNC); }).join();
+				std::thread([]() {PlaySound(L"sounds/confirm.wav", NULL, SND_ASYNC); }).join();
 				return cho;
 			}
 			default:
 				break;
 			}
 			system("cls");
-			std::thread([]() {PlaySound(L"sounds/na.wav", NULL, SND_ASYNC); }).join();
+			std::thread([]() {PlaySound(L"sounds/move.wav", NULL, SND_ASYNC); }).join();
 			for (size_t i = 0; i < str.size(); i++)
 			{
 				std::cout << (i == cho ? "-" : "") << str.at(i) << (i == cho ? "-" : "") << std::endl;
