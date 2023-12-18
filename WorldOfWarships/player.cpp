@@ -337,7 +337,7 @@ void Player::setPoint(std::vector<int> point, int state)
 
 						for (size_t k = 3; k < dead_ships.at(i).size(); k += 2)
 						{
-							if (row > dead_ships.at(i).at(k) && line > dead_ships.at(i).at(k + 1))
+							if (row >= dead_ships.at(i).at(k) && line >= dead_ships.at(i).at(k + 1))
 							{
 								row = dead_ships.at(i).at(k);
 								line = dead_ships.at(i).at(k + 1);
