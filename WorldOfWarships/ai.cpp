@@ -141,6 +141,7 @@ void Game::computerAttack()
 			break;
 		case 1:
 			std::thread([]() {PlaySound(L"sounds/hit.wav", NULL, SND_ASYNC); }).join();
+			Sleep(400);
 
 			player1->setPoint(point, 2);
 			//system("cls");
