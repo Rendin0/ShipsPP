@@ -70,12 +70,13 @@ int choice(std::string text, std::vector<std::string> str)
 			default:
 				break;
 			}
-			system("cls");
+			//system("cls");
+			printf("\x1b[H");
 			std::thread([]() {PlaySound(L"sounds/move.wav", NULL, SND_ASYNC); }).join();
 			std::cout << text << std::endl << std::endl;
 			for (size_t i = 0; i < str.size(); i++)
 			{
-				std::cout << (i == cho ? "-" : "") << str.at(i) << (i == cho ? "-" : "") << std::endl;
+				std::cout << (i == cho ? "-" : "") << str.at(i) << (i == cho ? "-" : "  ") << std::endl;
 			}
 		}
 	}
@@ -114,11 +115,12 @@ int choice(std::vector<std::string> str)
 			default:
 				break;
 			}
-			system("cls");
+			//system("cls");
+			printf("\x1b[H");
 			std::thread([]() {PlaySound(L"sounds/move.wav", NULL, SND_ASYNC); }).join();
 			for (size_t i = 0; i < str.size(); i++)
 			{
-				std::cout << (i == cho ? "-" : "") << str.at(i) << (i == cho ? "-" : "") << std::endl;
+				std::cout << (i == cho ? "-" : "") << str.at(i) << (i == cho ? "-" : " ") << std::endl;
 			}
 		}
 	}

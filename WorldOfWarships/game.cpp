@@ -56,7 +56,9 @@ void Game::attack()
 				break;
 			}
 			}
-			system("cls");
+			//system("cls");
+			printf("\x1b[H");
+
 			fieldsPrint(point);
 
 			if (key == 13)
@@ -69,7 +71,9 @@ void Game::attack()
 					std::thread([]() {PlaySound(L"sounds/miss.wav", NULL, SND_ASYNC); }).join();
 
 					(turn ? player1.setPoint(point, 3) : player2.setPoint(point, 3));
-					system("cls");
+					//system("cls");
+					printf("\x1b[H");
+
 					fieldsPrint(point);
 					break_point = true;
 					break;
@@ -77,7 +81,9 @@ void Game::attack()
 					std::thread([]() {PlaySound(L"sounds/hit.wav", NULL, SND_ASYNC); }).join();
 
 					(turn ? player1.setPoint(point, 2) : player2.setPoint(point, 2));
-					system("cls");
+					//system("cls");
+					printf("\x1b[H");
+
 					fieldsPrint(point);
 					break;
 				default:

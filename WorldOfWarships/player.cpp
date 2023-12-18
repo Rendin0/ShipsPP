@@ -29,7 +29,8 @@ std::vector<std::vector<std::vector<int>>> fieldCreate()
 		{
 			field.at(row + (direction * j)).at(line + (!(direction)*j)) = 1;
 		}
-		system("cls");
+		//system("cls");
+		printf("\x1b[H");
 		std::cout << "[Arrows] - move.\n[Space] - rotate.\n[Enter] - place ship.\n";
 		fieldPrint(field, 0, { -1, -1 });
 
@@ -96,7 +97,9 @@ std::vector<std::vector<std::vector<int>>> fieldCreate()
 				{
 					field.at(row + (direction * j)).at(line + (!(direction)*j)) = 1;
 				}
-				system("cls");
+				//system("cls");
+				printf("\x1b[H");
+
 				std::cout << "[Arrows] - move.\n[Space] - rotate.\n[Enter] - place ship.\n";
 				fieldPrint(field, 0, { -1, -1 });
 
