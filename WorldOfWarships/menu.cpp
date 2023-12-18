@@ -13,12 +13,10 @@ int menu(int state)
 		switch (key)
 		{
 		case 0:
-			localGame();
+			localTwoPlayersGame();
 			return 1;
 		case 1:
-			std::cout << "\nWIP\n";
-			system("pause");
-
+			localVersusComputerGame();
 			return 1;
 		case 2:
 			std::cout << "\nWIP\n";

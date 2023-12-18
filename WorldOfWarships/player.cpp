@@ -2,6 +2,7 @@
 
 Player::Player()
 {
+	
 	system("cls");
 	int choice1 = choice("Next player's turn to make a field!", {"Manual", "Random"});
 	std::vector<std::vector<std::vector<int>>> the_answer = (choice1 ? fieldCreateRandom() : fieldCreate());
@@ -164,6 +165,7 @@ std::vector<std::vector<std::vector<int>>> fieldCreate()
 
 	return the_answer;
 }
+
 
 std::vector<std::vector<std::vector<int>>> fieldCreateRandom()
 {
