@@ -21,7 +21,7 @@ void Game::fieldsPrint(std::vector<int> point1, std::vector<int> point2)
 
 void Game::attack()
 {
-	std::vector<int> point(2, 0);
+	std::vector<int> point(2, 4);
 	system("cls");
 	fieldsPrint({-1, -1}, point);
 

@@ -4,26 +4,100 @@ void Game::computerAttack()
 {
 	std::vector<int> point(2, 0);
 	system("cls");
-	fieldsPrint(point, {-1, -1});
-
+	fieldsPrint(point, { -1, -1 });
+	bool reverse = false;
 	bool break_point = false;
 	while (!break_point)
 	{
 		Sleep(300);
 		srand(time(0));
 
-		std::vector<int> ai_point(2, 0);
-		ai_point.at(0) = rand() % 10;
-		ai_point.at(1) = rand() % 10;
-		while (player1->getField().at(ai_point.at(0)).at(ai_point.at(0)) == 2 || player1->getField().at(ai_point.at(0)).at(ai_point.at(0)) == 3)
+		std::vector<int> ai_point(2, 4);
+
+		if (!player2->cpu_pointers.empty())
 		{
+			ai_point.at(0) = player2->cpu_pointers.at(player2->cpu_pointers.size() - 1).at(0);
+			ai_point.at(1) = player2->cpu_pointers.at(player2->cpu_pointers.size() - 1).at(1);
+
+			if (player2->cpu_dir != -1)
+			{
+				if (reverse)
+				{
+					if (ai_point.at(!player2->cpu_dir) == 0)
+					{
+						player2->cpu_pointers.clear();
+						continue;
+					}
+
+					if (player1->getField().at(ai_point.at(0) - (1 * player2->cpu_dir)).at(ai_point.at(1) - (1 * !player2->cpu_dir)) != 3)
+					{
+						ai_point.at(!player2->cpu_dir)--;
+						player2->cpu_pointers.push_back({ ai_point.at(0), ai_point.at(1) });
+					}
+					else
+					{
+						player2->cpu_pointers.clear();
+						continue;
+					}
+				}
+				else
+				{
+					if (ai_point.at(!player2->cpu_dir) == 9)
+					{
+						reverse = true;
+						continue;
+					}
+
+					if (player1->getField().at(ai_point.at(0) + (1 * player2->cpu_dir)).at(ai_point.at(1) + (1 * !player2->cpu_dir)) != 3)
+					{
+						ai_point.at(!player2->cpu_dir)++;
+						if (player1->getField().at(ai_point.at(0)).at(ai_point.at(1)) != 3)
+							player2->cpu_pointers.push_back({ ai_point.at(0), ai_point.at(1) });
+					}
+					else
+					{
+						reverse = true;
+					}
+				}
+			}
+			else
+			{
+				if (player2->cpu_pointers.size() > 1)
+				{
+					player2->cpu_dir = abs(player2->cpu_pointers.at(0).at(0) - player2->cpu_pointers.at(1).at(0));
+					continue;
+				}
+				if (ai_point.at(1) < 9 && (player1->getField().at(ai_point.at(0)).at(ai_point.at(1) + 1) != 2 && player1->getField().at(ai_point.at(0)).at(ai_point.at(1) + 1) != 3))
+					ai_point.at(1)++;
+				else if (ai_point.at(1) > 0 && (player1->getField().at(ai_point.at(0)).at(ai_point.at(1) - 1) != 2 && player1->getField().at(ai_point.at(0)).at(ai_point.at(1) - 1) != 3))
+					ai_point.at(1)--;
+				else if (ai_point.at(0) < 9 && (player1->getField().at(ai_point.at(0) + 1).at(ai_point.at(1)) != 2 && player1->getField().at(ai_point.at(0) + 1).at(ai_point.at(1)) != 3))
+					ai_point.at(0)++;
+				else if (ai_point.at(0) > 0 && (player1->getField().at(ai_point.at(0) - 1).at(ai_point.at(1)) != 2 && player1->getField().at(ai_point.at(0) - 1).at(ai_point.at(1)) != 3))
+					ai_point.at(0)--;
+				else
+				{
+					player2->cpu_pointers.clear();
+					continue;
+				}
+				
+			}
+		}
+		else
+		{
+			player2->cpu_dir = -1;
 			ai_point.at(0) = rand() % 10;
 			ai_point.at(1) = rand() % 10;
+			while (player1->getField().at(ai_point.at(0)).at(ai_point.at(1)) == 2 || player1->getField().at(ai_point.at(0)).at(ai_point.at(1)) == 3)
+			{
+				ai_point.at(0) = rand() % 10;
+				ai_point.at(1) = rand() % 10;
+			}
 		}
 
 		while (point.at(0) != ai_point.at(0))
 		{
-			Sleep(150);
+			Sleep(45);
 			point.at(0) < ai_point.at(0) ? point.at(0)++ : point.at(0)--;
 
 			//system("cls");
@@ -34,7 +108,7 @@ void Game::computerAttack()
 
 		while (point.at(1) != ai_point.at(1))
 		{
-			Sleep(150);
+			Sleep(45);
 			point.at(1) < ai_point.at(1) ? point.at(1)++ : point.at(1)--;
 
 			//system("cls");
@@ -48,6 +122,8 @@ void Game::computerAttack()
 		printf("\x1b[H");
 
 		fieldsPrint(point, { -1, -1 });
+
+
 
 		std::vector<std::vector<int>> enemy_field = player1->getField();
 
