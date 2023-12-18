@@ -51,7 +51,7 @@ void Game::computerAttack()
 					if (player1->getField().at(ai_point.at(0) + (1 * player2->cpu_dir)).at(ai_point.at(1) + (1 * !player2->cpu_dir)) != 3)
 					{
 						ai_point.at(!player2->cpu_dir)++;
-						if (player1->getField().at(ai_point.at(0)).at(ai_point.at(1)) != 3)
+						if (player1->getField().at(ai_point.at(0)).at(ai_point.at(1)) != 0)
 							player2->cpu_pointers.push_back({ ai_point.at(0), ai_point.at(1) });
 					}
 					else
