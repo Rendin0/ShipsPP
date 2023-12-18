@@ -85,6 +85,12 @@ void Game::attack()
 					printf("\x1b[H");
 
 					fieldsPrint(point);
+
+					if (getState() > 0)
+					{
+						break_point = true;
+					}
+
 					break;
 				default:
 					break;
