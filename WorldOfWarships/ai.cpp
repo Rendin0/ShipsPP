@@ -70,6 +70,8 @@ void Game::computerAttack()
 			//system("cls");
 			printf("\x1b[H");
 
+			player2->cpu_pointers.push_back(point);
+
 			fieldsPrint(point, { -1, -1 });
 
 			if (getState() > 0)
@@ -172,6 +174,7 @@ Player::Player(bool cpu)
 {
 	system("cls");
 	std::vector<std::vector<std::vector<int>>> the_answer = fieldCreateCpu();
+
 
 	field = the_answer.at(0);
 	all_ships = the_answer.at(1);

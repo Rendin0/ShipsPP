@@ -14,6 +14,7 @@ class Player
 	std::vector<std::vector<int>> all_ships;
 	std::vector<std::vector<int>> dead_ships;
 public:
+	std::vector<std::vector<int>> cpu_pointers;
 	Player();
 	Player(bool cpu);
 	std::vector<std::vector<int>> getField();
