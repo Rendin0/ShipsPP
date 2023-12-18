@@ -15,6 +15,7 @@ class Player
 	std::vector<std::vector<int>> dead_ships;
 public:
 	Player();
+	Player(bool cpu);
 	std::vector<std::vector<int>> getField();
 	void setPoint(std::vector<int> point, int state);
 	bool getState();
@@ -22,22 +23,24 @@ public:
 };
 std::vector<std::vector<std::vector<int>>> fieldCreate();
 std::vector<std::vector<std::vector<int>>> fieldCreateRandom();
+std::vector<std::vector<std::vector<int>>> fieldCreateCpu();
 void fieldPrint(std::vector<std::vector<int>> field, bool fogOfWar, std::vector<int> point);
 
 class Game
 {
-	Player player1;
-	Player player2;
+	Player* player1;
+	Player* player2;
 	int turn;
 public:
-	Game();
-	void fieldsPrint(std::vector<int> point);
+	Game(bool is_cpu);
+	void fieldsPrint(std::vector<int> point1, std::vector<int> point2);
 	void attack();
+	void computerAttack();
 	int getState();
 	void changeTurn();
 };
-int localGame();
-
+int localTwoPlayersGame();
+int localVersusComputerGame();
 int menu(int state);
 int choice(std::vector<std::string> str);
 int choice(std::string text, std::vector<std::string> str);

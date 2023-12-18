@@ -140,6 +140,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ai.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="player.cpp" />
