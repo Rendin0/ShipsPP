@@ -26,7 +26,7 @@ public:
 std::vector<std::vector<std::vector<int>>> fieldCreate();
 std::vector<std::vector<std::vector<int>>> fieldCreateRandom();
 std::vector<std::vector<std::vector<int>>> fieldCreateCpu();
-void fieldPrint(std::vector<std::vector<int>> field, bool fogOfWar, std::vector<int> point);
+void fieldPrint(std::vector<std::vector<int>> field, const bool fogOfWar, std::vector<int> point);
 
 class Game
 {
@@ -35,7 +35,7 @@ class Game
 	int turn;
 public:
 	Game(bool is_cpu);
-	void fieldsPrint(std::vector<int> point1, std::vector<int> point2);
+	void fieldsPrint(std::vector<int> point1, std::vector<int> point2, const bool fogOfWar);
 	void attack();
 	void computerAttack();
 	int getState();

@@ -8,7 +8,7 @@ Game::Game(bool cpu)
 	turn = 0;
 }
 
-void Game::fieldsPrint(std::vector<int> point1, std::vector<int> point2)
+void Game::fieldsPrint(std::vector<int> point1, std::vector<int> point2, const bool fogOfWar)
 {
 	std::vector<std::vector<int>> field1 = (turn ? player2->getField() : player1->getField());
 	std::vector<std::vector<int>> field2 = (turn ? player1->getField() : player2->getField());
@@ -16,14 +16,14 @@ void Game::fieldsPrint(std::vector<int> point1, std::vector<int> point2)
 	fieldPrint(field1, false, point1);
 	std::cout << "\n\n\n";
 	std::cout << "Player " << (turn ? "1" : "2") << std::endl;
-	fieldPrint(field2, true, point2);
+	fieldPrint(field2, fogOfWar, point2);
 }
 
 void Game::attack()
 {
 	std::vector<int> point(2, 4);
 	system("cls");
-	fieldsPrint({-1, -1}, point);
+	fieldsPrint({-1, -1}, point, true);
 
 	bool break_point = false;
 	while (!break_point)
@@ -62,7 +62,7 @@ void Game::attack()
 			//system("cls");
 			printf("\x1b[H");
 
-			fieldsPrint({ -1, -1 }, point);
+			fieldsPrint({ -1, -1 }, point, true);
 
 			if (key == 13)
 			{
@@ -77,7 +77,7 @@ void Game::attack()
 					//system("cls");
 					printf("\x1b[H");
 
-					fieldsPrint({ -1, -1 }, point);
+					fieldsPrint({ -1, -1 }, point, true);
 					break_point = true;
 					break;
 				case 1:
@@ -87,7 +87,7 @@ void Game::attack()
 					//system("cls");
 					printf("\x1b[H");
 
-					fieldsPrint({ -1, -1 }, point);
+					fieldsPrint({ -1, -1 }, point, true);
 
 					if (getState() > 0)
 					{
@@ -147,7 +147,7 @@ int localTwoPlayersGame()
 	}
 
 	system("cls");
-	game1.fieldsPrint({ -1, -1 }, {-1, -1});
+	game1.fieldsPrint({ -1, -1 }, {-1, -1}, false);
 	std::cout << "\n\nPlayer " << game1.getState() << " wins!" << std::endl;
 	system("pause");
 

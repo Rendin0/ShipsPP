@@ -262,7 +262,7 @@ std::vector<std::vector<int>> Player::getField()
 	return field;
 }
 
-void fieldPrint(std::vector<std::vector<int>> field, bool fogOfWar, std::vector<int> point)
+void fieldPrint(std::vector<std::vector<int>> field, const bool fogOfWar, std::vector<int> point)
 {
 
 	for (size_t i = 0; i < field.size(); i++)

@@ -4,7 +4,7 @@ void Game::computerAttack()
 {
 	std::vector<int> point(2, 0);
 	system("cls");
-	fieldsPrint(point, { -1, -1 });
+	fieldsPrint(point, { -1, -1 }, true);
 	bool reverse = false;
 	bool break_point = false;
 	while (!break_point)
@@ -103,7 +103,7 @@ void Game::computerAttack()
 			//system("cls");
 			printf("\x1b[H");
 
-			fieldsPrint(point, { -1, -1 });
+			fieldsPrint(point, { -1, -1 }, true);
 		}
 
 		while (point.at(1) != ai_point.at(1))
@@ -114,14 +114,14 @@ void Game::computerAttack()
 			//system("cls");
 			printf("\x1b[H");
 
-			fieldsPrint(point, { -1, -1 });
+			fieldsPrint(point, { -1, -1 }, true);
 		}
 
 
 		//system("cls");
 		printf("\x1b[H");
 
-		fieldsPrint(point, { -1, -1 });
+		fieldsPrint(point, { -1, -1 }, true);
 
 
 
@@ -136,7 +136,7 @@ void Game::computerAttack()
 			//system("cls");
 			printf("\x1b[H");
 
-			fieldsPrint(point, { -1, -1 });
+			fieldsPrint(point, { -1, -1 }, true);
 			break_point = true;
 			break;
 		case 1:
@@ -149,7 +149,7 @@ void Game::computerAttack()
 
 			player2->cpu_pointers.push_back(point);
 
-			fieldsPrint(point, { -1, -1 });
+			fieldsPrint(point, { -1, -1 }, true);
 
 			if (getState() > 0)
 			{
@@ -285,7 +285,7 @@ int localVersusComputerGame()
 	}
 
 	system("cls");
-	game1.fieldsPrint({ -1, -1 }, { -1, -1 });
+	game1.fieldsPrint({ -1, -1 }, { -1, -1 }, false);
 	std::cout << "\n\n" << (game1.getState() == 1 ? "Player " : "Computer ") << " wins!" << std::endl;
 	system("pause");
 
