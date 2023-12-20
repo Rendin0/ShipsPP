@@ -284,6 +284,8 @@ int localVersusComputerGame()
 		}
 	}
 
+	std::thread([]() {PlaySound(L"sounds/win.wav", NULL, SND_ASYNC); }).join();
+
 	system("cls");
 	game1.fieldsPrint({ -1, -1 }, { -1, -1 }, false);
 	std::cout << "\n\n" << (game1.getState() == 1 ? "Player " : "Computer ") << " wins!" << std::endl;

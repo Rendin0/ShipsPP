@@ -146,6 +146,8 @@ int localTwoPlayersGame()
 		game1.changeTurn();
 	}
 
+	std::thread([]() {PlaySound(L"sounds/win.wav", NULL, SND_ASYNC); }).join();
+
 	system("cls");
 	game1.fieldsPrint({ -1, -1 }, {-1, -1}, false);
 	std::cout << "\n\nPlayer " << game1.getState() << " wins!" << std::endl;
