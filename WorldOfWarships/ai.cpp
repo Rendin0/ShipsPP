@@ -2,7 +2,7 @@
 
 void Game::computerAttack()
 {
-	std::vector<int> point(2, 0);
+	std::vector<int> point(2, 4);
 	system("cls");
 	fieldsPrint(point, { -1, -1 }, true);
 	bool reverse = false;
