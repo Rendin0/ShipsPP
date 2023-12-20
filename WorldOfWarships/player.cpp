@@ -277,19 +277,23 @@ void fieldPrint(std::vector<std::vector<int>> field, const bool fogOfWar, std::v
 			switch (field.at(i).at(j))
 			{
 			case 0:
-				std::cout << ".";
+				printf("\x1b[0m.");
 				break;
 			case 1:
-				std::cout << (fogOfWar ? "." : "S");
+				fogOfWar ? printf("\x1b[0m.") : printf("\x1b[32mS");
+				printf("\x1b[0m");
 				break;
 			case 2:
-				std::cout << "X";
+				printf("\x1b[31mX");
+				printf("\x1b[0m");
 				break;
 			case 3:
-				std::cout << "O";
+				printf("\x1b[34mO");
+				printf("\x1b[0m");
 				break;
 			case 4:
 				std::cout << "!";
+				printf("\x1b[0m");
 				break;
 			}
 			if (i == point.at(0) && j == point.at(1))
