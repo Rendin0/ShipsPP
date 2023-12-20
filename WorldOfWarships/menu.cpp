@@ -41,7 +41,7 @@ int choice(std::string text, std::vector<std::string> str)
 	std::cout << text << std::endl << std::endl;
 	for (size_t i = 0; i < str.size(); i++)
 	{
-		std::cout << (i == cho ? "-" : "") << str.at(i) << (i == cho ? "-" : "") << std::endl;
+		std::cout << (i == cho ? "\u001b[44m" : "") << str.at(i) << (i == cho ? "\u001b[0m" : "") << std::endl;
 	}
 	while (true)
 	{
@@ -74,7 +74,7 @@ int choice(std::string text, std::vector<std::string> str)
 			std::cout << text << std::endl << std::endl;
 			for (size_t i = 0; i < str.size(); i++)
 			{
-				std::cout << (i == cho ? "-" : "") << str.at(i) << (i == cho ? "-" : "  ") << std::endl;
+				std::cout << (i == cho ? "\u001b[44m" : "") << str.at(i) << (i == cho ? "\u001b[0m" : "") << std::endl;
 			}
 		}
 	}
