@@ -2,6 +2,7 @@
 
 int main()
 {
+	std::cout << "\u001b[?25l";
 	srand(time(0));
 
 	int state = 1;
