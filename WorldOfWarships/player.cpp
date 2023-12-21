@@ -18,6 +18,7 @@ Player::Player()
 
 std::vector<std::vector<std::vector<int>>> fieldCreate()
 {
+	system("cls");
 	std::vector<std::vector<std::vector<int>>> the_answer(2);
 	std::vector<std::vector<int>> field(10, std::vector<int>(10, 0));
 	std::vector<std::vector<int>> tmp_field(10, std::vector<int>(10, 0));
@@ -139,6 +140,8 @@ std::vector<std::vector<std::vector<int>>> fieldCreate()
 					}
 					else
 					{
+						std::thread([]() {PlaySound(L"sounds/miss.wav", NULL, SND_ASYNC); }).join();
+
 						for (int j = 0; j < i; j++)
 						{
 							field.at(row + (direction * j)).at(line + (!(direction)*j)) = 4;
@@ -292,7 +295,7 @@ void fieldPrint(std::vector<std::vector<int>> field, const bool fogOfWar, std::v
 				printf("\x1b[0m");
 				break;
 			case 4:
-				std::cout << "!";
+				printf("\x1b[31m!");
 				printf("\x1b[0m");
 				break;
 			}
