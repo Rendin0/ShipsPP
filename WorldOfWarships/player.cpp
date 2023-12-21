@@ -2,9 +2,9 @@
 
 Player::Player()
 {
-	
+
 	system("cls");
-	int choice1 = choice("Next player's turn to make a field!", {"Manual", "Random"});
+	int choice1 = choice("Next player's turn to make a field!", { "Manual", "Random" });
 	std::vector<std::vector<std::vector<int>>> the_answer = (choice1 ? fieldCreateRandom() : fieldCreate());
 	field = the_answer.at(0);
 	all_ships = the_answer.at(1);
@@ -267,46 +267,36 @@ std::vector<std::vector<int>> Player::getField()
 
 void fieldPrint(std::vector<std::vector<int>> field, const bool fogOfWar, std::vector<int> point)
 {
-
 	for (size_t i = 0; i < field.size(); i++)
 	{
 		for (size_t j = 0; j < field.at(i).size(); j++)
 		{
 			if (i == point.at(0) && j == point.at(1))
-				std::cout << "!";
-			else
-				std::cout << " ";
-
+				printf("\u001b[48;5;88m");
 			switch (field.at(i).at(j))
 			{
 			case 0:
-				printf("\x1b[0m.");
+				printf("\x1b[37m.");
 				break;
 			case 1:
-				fogOfWar ? printf("\x1b[0m.") : printf("\x1b[32mS");
-				printf("\x1b[0m");
+				fogOfWar ? printf("\x1b[37m.") : printf("\x1b[32mS");
 				break;
 			case 2:
-				printf("\x1b[31mX");
-				printf("\x1b[0m");
+				printf("\x1b[31m*");
 				break;
 			case 3:
 				printf("\x1b[34mO");
-				printf("\x1b[0m");
 				break;
 			case 4:
 				printf("\x1b[31m!");
-				printf("\x1b[0m");
 				break;
 			}
 			if (i == point.at(0) && j == point.at(1))
-				std::cout << "!";
-			else
-				std::cout << " ";
+				printf("\u001b[40m");
 
 			std::cout << " ";
 		}
-		std::cout << "\n";
+		std::cout << "\u001b[0m\n";
 	}
 
 }
@@ -352,7 +342,7 @@ void Player::setPoint(std::vector<int> point, int state)
 								line = dead_ships.at(i).at(k + 1);
 							}
 						}
-							shipIsDead(row, line, dead_ships.at(i).at(0), i);
+						shipIsDead(row, line, dead_ships.at(i).at(0), i);
 					}
 				}
 			}
