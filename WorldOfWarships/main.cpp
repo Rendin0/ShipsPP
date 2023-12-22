@@ -2,6 +2,7 @@
 
 int main()
 {
+	SetConsoleTitle(L"Sea battle!");
 	std::cout << "\u001b[?25l";
 	srand(time(0));
 
