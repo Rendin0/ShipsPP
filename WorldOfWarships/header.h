@@ -1,4 +1,7 @@
 #pragma once
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#include <Winsock2.h>
+#include <WS2tcpip.h>
 #include <iostream>
 #include <vector>
 #include <string>
@@ -6,6 +9,7 @@
 #include <Windows.h>
 #include <ctime>
 #include <thread>
+#pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "winmm.lib")
 
 class Player
@@ -44,6 +48,8 @@ public:
 int localTwoPlayersGame();
 int localVersusComputerGame();
 int menu(int state);
-int choice(std::vector<std::string> str);
 int choice(std::string text, std::vector<std::string> str);
 
+int multiplayer();
+int client();
+int server();

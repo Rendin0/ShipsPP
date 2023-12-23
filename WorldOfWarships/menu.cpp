@@ -19,9 +19,7 @@ int menu(int state)
 			localVersusComputerGame();
 			return 1;
 		case 2:
-			std::cout << "\nWIP\n";
-			system("pause");
-
+			multiplayer();
 			return 1;
 		case 3:
 			return 0;
