@@ -143,6 +143,7 @@
     <ClCompile Include="ai.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="menu.cpp" />
+    <ClCompile Include="multiplayer.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
