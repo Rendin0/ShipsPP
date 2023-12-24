@@ -1,9 +1,34 @@
 #include "header.h"
 
-Game::Game(bool cpu)
+Game::Game(bool mode)
 {
-	player1 = new Player;
-	player2 = cpu ? new Player(1) : new Player;
+	switch (mode)
+	{
+	case 0:
+	{
+		player1 = new Player;
+		player2 = new Player;
+		break;
+	}
+	case 1:
+	{
+		player1 = new Player;
+		player2 = new Player(1);
+		break;
+	}
+	case 2:
+	{
+		player1 = new Player;
+		break;
+	}
+	case 3:
+	{
+		player2 = new Player;
+		break;
+	}
+	default:
+		break;
+	}
 
 	turn = 0;
 }
@@ -157,3 +182,16 @@ int localTwoPlayersGame()
 	return game1.getState();
 }
 
+void Game::setPlayer(int number, std::vector<std::vector<int>> field, std::vector<std::vector<int>> all_ships, std::vector<std::vector<int>> dead_ships)
+{
+	if (!number)
+	{
+		player1->setAll(field, all_ships, dead_ships);
+		return;
+	}
+	else
+	{
+		player2->setAll(field, all_ships, dead_ships);
+		return;
+	}
+}

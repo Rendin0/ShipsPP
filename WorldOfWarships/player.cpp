@@ -384,3 +384,10 @@ bool Player::getState()
 
 	return state;
 }
+
+void Player::setAll(std::vector<std::vector<int>> _field, std::vector<std::vector<int>> _all_ships, std::vector<std::vector<int>> _dead_ships)
+{
+	field = _field;
+	all_ships = _all_ships;
+	dead_ships = _dead_ships;
+}

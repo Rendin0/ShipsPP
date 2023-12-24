@@ -1,6 +1,6 @@
 #include "header.h"
 
-int client()
+int client(Game*& game1)
 {
 	WSAData ws_data;
 	int err_stat = WSAStartup(MAKEWORD(2, 2), &ws_data);
@@ -46,12 +46,13 @@ int client()
 		return 1;
 	}
 
+	while (game1 == nullptr);
 
 
 	return 0;
 }
 
-int server()
+int server(Game*& game1)
 {
 	WSAData ws_data;
 	int err_stat = WSAStartup(MAKEWORD(2, 2), &ws_data);
@@ -117,11 +118,24 @@ int server()
 		return 1;
 	}
 
+	while (game1 == nullptr);
+	
+
+
+	return 0;
+}
+
+int multiplayerGame(Game*& game1)
+{
+	game1 = new Game(0);
+
+
 	return 0;
 }
 
 int multiplayer()
 {
+	Game* game1;
 
 	int key = choice("Choose multiplayer mode", { "Host", "Client" });
 	system("cls");
@@ -129,16 +143,20 @@ int multiplayer()
 	{
 	case 0:
 	{
-		server();
+		std::thread srv (server, game1);
+		multiplayerGame(game1);
 		system("pause");
 
+		srv.join();
 		break;
 	}
 	case 1:
 	{
-		client();
+		std::thread cln(client, game1);
+		multiplayerGame(game1);
 		system("pause");
 		
+		cln.join();
 		break;
 	}
 	default:
