@@ -46,8 +46,34 @@ int client(Game*& game1)
 		return 1;
 	}
 
-	while (game1 == nullptr);
+	game1 = new Game(3);
 
+	std::vector<std::vector<std::vector<int>>> buff(3);
+	int buf_size;
+
+	for (int i = 0; i < 3; i++)
+	{
+		recv(client_socket, (char*)&buf_size, sizeof(int), NULL);
+		buff.at(i).resize(buf_size);
+		for (int j = 0; j < buff.at(i).size(); j++)
+		{
+			recv(client_socket, (char*)&buf_size, sizeof(int), NULL);
+			buff.at(i).at(j).resize(buf_size);
+			for (int k = 0; k < buff.at(i).at(j).size(); k++)
+			{
+				recv(client_socket, (char*)&buff.at(i).at(j).at(k), sizeof(int), NULL);
+			}
+		}
+	}
+
+	game1->setPlayer(0, buff.at(0), buff.at(1), buff.at(2));
+
+	game1->fieldsPrint({-1, -1}, {-1, -1}, 0);
+
+	system("pause");
+
+	closesocket(client_socket);
+	WSACleanup();
 
 	return 0;
 }
@@ -102,7 +128,7 @@ int server(Game*& game1)
 		WSACleanup();
 		return 1;
 	}
-	
+
 	sockaddr_in client_info;
 	ZeroMemory(&client_info, sizeof(client_info));
 
@@ -118,16 +144,39 @@ int server(Game*& game1)
 		return 1;
 	}
 
-	while (game1 == nullptr);
-	
+	game1 = new Game(2);
+	std::vector<std::vector<std::vector<int>>> buff = game1->getPlayer(0);
+	int buf_size;
 
+	for (int i = 0; i < 3; i++)
+	{
+		buf_size = buff.at(i).size();
+		send(client_connection, (char*)&buf_size, sizeof(int), NULL);
+		Sleep(10);
+		for (int j = 0; j < buff.at(i).size(); j++)
+		{
+			buf_size = buff.at(i).at(j).size();
+			send(client_connection, (char*)&buf_size, sizeof(int), NULL);
+			Sleep(10);
+			for (int k = 0; k < buff.at(i).at(j).size(); k++)
+			{
+				send(client_connection, (char*)&buff.at(i).at(j).at(k), sizeof(int), NULL);
+				Sleep(10);
+			}
+		}
+	}
+
+	closesocket(server_socket);
+	closesocket(client_connection);
+	WSACleanup();
 
 	return 0;
 }
 
 int multiplayerGame(Game*& game1)
 {
-	game1 = new Game(0);
+	while (game1 == nullptr);
+	while (!game1->allDone());
 
 
 	return 0;
@@ -135,7 +184,7 @@ int multiplayerGame(Game*& game1)
 
 int multiplayer()
 {
-	Game* game1;
+	Game* game1 = nullptr;
 
 	int key = choice("Choose multiplayer mode", { "Host", "Client" });
 	system("cls");
@@ -143,7 +192,7 @@ int multiplayer()
 	{
 	case 0:
 	{
-		std::thread srv (server, game1);
+		std::thread srv(server, std::ref(game1));
 		multiplayerGame(game1);
 		system("pause");
 
@@ -152,10 +201,10 @@ int multiplayer()
 	}
 	case 1:
 	{
-		std::thread cln(client, game1);
+		std::thread cln(client, std::ref(game1));
 		multiplayerGame(game1);
 		system("pause");
-		
+
 		cln.join();
 		break;
 	}

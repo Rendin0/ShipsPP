@@ -9,6 +9,7 @@
 #include <Windows.h>
 #include <ctime>
 #include <thread>
+#include <functional>
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "winmm.lib")
 
@@ -27,6 +28,8 @@ public:
 	bool getState();
 	void shipIsDead(size_t row, size_t line, int direction, size_t ship_id);
 	void setAll(std::vector<std::vector<int>> _field, std::vector<std::vector<int>> _all_ships, std::vector<std::vector<int>> _dead_ships);
+	std::vector<std::vector<std::vector<int>>> getAll();
+	bool allGood();
 };
 std::vector<std::vector<std::vector<int>>> fieldCreate();
 std::vector<std::vector<std::vector<int>>> fieldCreateRandom();
@@ -46,6 +49,8 @@ public:
 	int getState();
 	void changeTurn();
 	void setPlayer(int number, std::vector<std::vector<int>> field, std::vector<std::vector<int>> all_ships, std::vector<std::vector<int>> dead_ships);
+	std::vector<std::vector<std::vector<int>>> getPlayer(int number);
+	bool allDone();
 };
 int localTwoPlayersGame();
 int localVersusComputerGame();

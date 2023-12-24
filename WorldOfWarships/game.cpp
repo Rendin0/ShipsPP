@@ -19,10 +19,12 @@ Game::Game(bool mode)
 	case 2:
 	{
 		player1 = new Player;
+		player2 = nullptr;
 		break;
 	}
 	case 3:
 	{
+		player1 = nullptr;
 		player2 = new Player;
 		break;
 	}
@@ -194,4 +196,20 @@ void Game::setPlayer(int number, std::vector<std::vector<int>> field, std::vecto
 		player2->setAll(field, all_ships, dead_ships);
 		return;
 	}
+}
+
+bool Game::allDone()
+{
+	if (player1->allGood() && player2->allGood())
+		return true;
+	else
+		return false;
+}
+
+std::vector<std::vector<std::vector<int>>> Game::getPlayer(int number)
+{
+	if (!number)
+		return player1->getAll();
+	else
+		return player2->getAll();
 }

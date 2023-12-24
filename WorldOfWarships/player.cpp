@@ -169,7 +169,6 @@ std::vector<std::vector<std::vector<int>>> fieldCreate()
 	return the_answer;
 }
 
-
 std::vector<std::vector<std::vector<int>>> fieldCreateRandom()
 {
 	system("cls");
@@ -390,4 +389,17 @@ void Player::setAll(std::vector<std::vector<int>> _field, std::vector<std::vecto
 	field = _field;
 	all_ships = _all_ships;
 	dead_ships = _dead_ships;
+}
+
+bool Player::allGood()
+{
+	if (field.empty() || all_ships.size() != 10 || dead_ships.size() != 10)
+		return false;
+	else
+		return true;
+}
+
+std::vector<std::vector<std::vector<int>>> Player::getAll()
+{
+	return { field, all_ships, dead_ships };
 }
