@@ -1,6 +1,57 @@
 #include "header.h"
 
-int client(Game*& game1)
+void startupRecv(Game*& game1, SOCKET& connection, int& is_func_ended, int need_plr)
+{
+	std::vector<std::vector<std::vector<int>>> buff(3);
+	int buf_size;
+
+	for (int i = 0; i < 3; i++)
+	{
+		recv(connection, (char*)&buf_size, sizeof(int), NULL);
+		buff.at(i).resize(buf_size);
+		for (int j = 0; j < buff.at(i).size(); j++)
+		{
+			recv(connection, (char*)&buf_size, sizeof(int), NULL);
+			buff.at(i).at(j).resize(buf_size);
+			for (int k = 0; k < buff.at(i).at(j).size(); k++)
+			{
+				recv(connection, (char*)&buff.at(i).at(j).at(k), sizeof(int), NULL);
+			}
+		}
+	}
+
+	game1->setPlayer(need_plr, buff.at(0), buff.at(1), buff.at(2));
+
+	is_func_ended = 1;
+}
+
+int startupSend(Game*& game1, SOCKET& connection, int player)
+{
+	std::vector<std::vector<std::vector<int>>> buff = game1->getPlayer(player);
+	int buf_size;
+
+	for (int i = 0; i < 3; i++)
+	{
+		buf_size = buff.at(i).size();
+		send(connection, (char*)&buf_size, sizeof(int), NULL);
+		Sleep(10);
+		for (int j = 0; j < buff.at(i).size(); j++)
+		{
+			buf_size = buff.at(i).at(j).size();
+			send(connection, (char*)&buf_size, sizeof(int), NULL);
+			Sleep(10);
+			for (int k = 0; k < buff.at(i).at(j).size(); k++)
+			{
+				send(connection, (char*)&buff.at(i).at(j).at(k), sizeof(int), NULL);
+				Sleep(10);
+			}
+		}
+	}
+
+	return 0;
+}
+
+int client()
 {
 	WSAData ws_data;
 	int err_stat = WSAStartup(MAKEWORD(2, 2), &ws_data);
@@ -46,29 +97,26 @@ int client(Game*& game1)
 		return 1;
 	}
 
-	game1 = new Game(3);
+	Game* game1;
 
-	std::vector<std::vector<std::vector<int>>> buff(3);
-	int buf_size;
+	int is_func_ended = 0;
+	int need_plr = 0;
 
-	for (int i = 0; i < 3; i++)
-	{
-		recv(client_socket, (char*)&buf_size, sizeof(int), NULL);
-		buff.at(i).resize(buf_size);
-		for (int j = 0; j < buff.at(i).size(); j++)
-		{
-			recv(client_socket, (char*)&buf_size, sizeof(int), NULL);
-			buff.at(i).at(j).resize(buf_size);
-			for (int k = 0; k < buff.at(i).at(j).size(); k++)
-			{
-				recv(client_socket, (char*)&buff.at(i).at(j).at(k), sizeof(int), NULL);
-			}
-		}
-	}
+	std::thread strtpRcv(startupRecv, std::ref(game1), std::ref(client_socket), std::ref(is_func_ended), need_plr);
 
-	game1->setPlayer(0, buff.at(0), buff.at(1), buff.at(2));
+	game1 = new Game(2);
+	game1->setPlayer(1, true);
 
-	game1->fieldsPrint({-1, -1}, {-1, -1}, 0);
+	startupSend(game1, client_socket, 1);
+
+	system("cls");
+	std::cout << "Waiting for another player...";
+
+	while (!is_func_ended);
+
+	strtpRcv.join();
+
+	multiplayerGame(game1, client_socket);
 
 	system("pause");
 
@@ -78,7 +126,7 @@ int client(Game*& game1)
 	return 0;
 }
 
-int server(Game*& game1)
+int server()
 {
 	WSAData ws_data;
 	int err_stat = WSAStartup(MAKEWORD(2, 2), &ws_data);
@@ -144,27 +192,28 @@ int server(Game*& game1)
 		return 1;
 	}
 
-	game1 = new Game(2);
-	std::vector<std::vector<std::vector<int>>> buff = game1->getPlayer(0);
-	int buf_size;
+	Game* game1;
 
-	for (int i = 0; i < 3; i++)
-	{
-		buf_size = buff.at(i).size();
-		send(client_connection, (char*)&buf_size, sizeof(int), NULL);
-		Sleep(10);
-		for (int j = 0; j < buff.at(i).size(); j++)
-		{
-			buf_size = buff.at(i).at(j).size();
-			send(client_connection, (char*)&buf_size, sizeof(int), NULL);
-			Sleep(10);
-			for (int k = 0; k < buff.at(i).at(j).size(); k++)
-			{
-				send(client_connection, (char*)&buff.at(i).at(j).at(k), sizeof(int), NULL);
-				Sleep(10);
-			}
-		}
-	}
+	int is_func_ended = 0;
+	int need_plr = 1;
+
+	std::thread strtpRcv(startupRecv, std::ref(game1), std::ref(client_connection), std::ref(is_func_ended), need_plr);
+
+	game1 = new Game(2);
+	game1->setPlayer(0, true);
+
+	startupSend(game1, client_connection, 0);
+
+	system("cls");
+	std::cout << "Waiting for another player...";
+
+	while (!is_func_ended);
+
+	strtpRcv.join();
+
+	multiplayerGame(game1, client_connection);
+
+	system("pause");
 
 	closesocket(server_socket);
 	closesocket(client_connection);
@@ -173,11 +222,10 @@ int server(Game*& game1)
 	return 0;
 }
 
-int multiplayerGame(Game*& game1)
+int multiplayerGame(Game*& game1, SOCKET& connection)
 {
-	while (game1 == nullptr);
-	while (!game1->allDone());
-
+	system("cls");
+	game1->fieldsPrint({ -1, -1 }, { -1, -1 }, 0);
 
 	return 0;
 }
@@ -192,20 +240,18 @@ int multiplayer()
 	{
 	case 0:
 	{
-		std::thread srv(server, std::ref(game1));
-		multiplayerGame(game1);
-		system("pause");
+		SetConsoleTitle(L"Sea battle! Server");
 
-		srv.join();
+		server();
+
 		break;
 	}
 	case 1:
 	{
-		std::thread cln(client, std::ref(game1));
-		multiplayerGame(game1);
-		system("pause");
+		SetConsoleTitle(L"Sea battle! Client");
 
-		cln.join();
+		client();
+
 		break;
 	}
 	default:

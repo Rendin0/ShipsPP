@@ -1,6 +1,6 @@
 #include "header.h"
 
-Game::Game(bool mode)
+Game::Game(int mode)
 {
 	switch (mode)
 	{
@@ -13,23 +13,21 @@ Game::Game(bool mode)
 	case 1:
 	{
 		player1 = new Player;
-		player2 = new Player(1);
+		player2 = new Player(0);
 		break;
 	}
 	case 2:
 	{
-		player1 = new Player;
-		player2 = nullptr;
-		break;
-	}
-	case 3:
-	{
-		player1 = nullptr;
-		player2 = new Player;
+		player1 = new Player(1);
+		player2 = new Player(1);
 		break;
 	}
 	default:
+	{
+		player1 = new Player(1);
+		player2 = new Player(1);
 		break;
+	}
 	}
 
 	turn = 0;
@@ -184,16 +182,30 @@ int localTwoPlayersGame()
 	return game1.getState();
 }
 
-void Game::setPlayer(int number, std::vector<std::vector<int>> field, std::vector<std::vector<int>> all_ships, std::vector<std::vector<int>> dead_ships)
+void Game::setPlayer(int id, std::vector<std::vector<int>> field, std::vector<std::vector<int>> all_ships, std::vector<std::vector<int>> dead_ships)
 {
-	if (!number)
+	if (!id)
 	{
-		player1->setAll(field, all_ships, dead_ships);
+		player1 = new Player(field, all_ships, dead_ships);
 		return;
 	}
 	else
 	{
-		player2->setAll(field, all_ships, dead_ships);
+		player2 = new Player(field, all_ships, dead_ships);
+		return;
+	}
+}
+
+void Game::setPlayer(int id, bool mode)
+{
+	if (!id)
+	{
+		player1 = new Player;
+		return;
+	}
+	else
+	{
+		player2 = new Player;
 		return;
 	}
 }
@@ -206,9 +218,9 @@ bool Game::allDone()
 		return false;
 }
 
-std::vector<std::vector<std::vector<int>>> Game::getPlayer(int number)
+std::vector<std::vector<std::vector<int>>> Game::getPlayer(int id)
 {
-	if (!number)
+	if (!id)
 		return player1->getAll();
 	else
 		return player2->getAll();

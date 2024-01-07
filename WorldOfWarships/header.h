@@ -22,7 +22,8 @@ public:
 	std::vector<std::vector<int>> cpu_pointers;
 	int cpu_dir;
 	Player();
-	Player(bool cpu);
+	Player(int param);
+	Player(std::vector<std::vector<int>> _field, std::vector<std::vector<int>> _all_ships, std::vector<std::vector<int>> _dead_ships);
 	std::vector<std::vector<int>> getField();
 	void setPoint(std::vector<int> point, int state);
 	bool getState();
@@ -42,14 +43,15 @@ class Game
 	Player* player2;
 	int turn;
 public:
-	Game(bool mode);
+	Game(int mode);
 	void fieldsPrint(std::vector<int> point1, std::vector<int> point2, const bool fogOfWar);
 	void attack();
 	void computerAttack();
 	int getState();
 	void changeTurn();
-	void setPlayer(int number, std::vector<std::vector<int>> field, std::vector<std::vector<int>> all_ships, std::vector<std::vector<int>> dead_ships);
-	std::vector<std::vector<std::vector<int>>> getPlayer(int number);
+	void setPlayer(int id, std::vector<std::vector<int>> field, std::vector<std::vector<int>> all_ships, std::vector<std::vector<int>> dead_ships);
+	void setPlayer(int id, bool mode);
+	std::vector<std::vector<std::vector<int>>> getPlayer(int id);
 	bool allDone();
 };
 int localTwoPlayersGame();
@@ -58,6 +60,6 @@ int menu(int state);
 int choice(std::string text, std::vector<std::string> str);
 
 int multiplayer();
-int multiplayerGame(Game*& game1);
-int client(Game*& game1);
-int server(Game*& game1);
+int multiplayerGame(Game*& game1, SOCKET& connection);
+int client();
+int server();
