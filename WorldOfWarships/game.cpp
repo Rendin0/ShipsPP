@@ -128,29 +128,141 @@ void Game::attack()
 	}
 }
 
-int Game::getState()
+void Game::attackOnline(SOCKET& connection)
 {
-	int state = 0;
+	std::vector<int> point(2, 4);
+	system("cls");
+	fieldsPrintOnline(point, true, turn);
 
-	if (!player1->getState())
+	while (true)
 	{
-		state = 2;
-		return state;
-	}
-	if (!player2->getState())
-	{
-		state = 1;
-		return state;
+		if (_kbhit())
+		{
+			int key = _getch();
+
+			switch (key)
+			{
+			case 72:
+			{
+				if (point.at(0) > 0)
+					point.at(0)--;
+				break;
+			}
+			case 75:
+			{
+				if (point.at(1) > 0)
+					point.at(1)--;
+				break;
+			}
+			case 77:
+			{
+				if (point.at(1) < 9)
+					point.at(1)++;
+				break;
+			}
+			case 80:
+			{
+				if (point.at(0) < 9)
+					point.at(0)++;
+				break;
+			}
+			}
+			//system("cls");
+			printf("\x1b[H");
+
+			fieldsPrintOnline(point, true, turn);
+
+			if (key == 13)
+			{
+				std::vector<std::vector<int>> enemy_field = (main_player_id ? player1->getField() : player2->getField());
+
+				switch (enemy_field.at(point.at(0)).at(point.at(1)))
+				{
+				case 0:
+				{
+					std::thread([]() {PlaySound(L"sounds/miss.wav", NULL, SND_ASYNC); }).join();
+
+					(main_player_id ? player1->setPoint(point, 3) : player2->setPoint(point, 3));
+					//system("cls");
+					printf("\x1b[H");
+
+					fieldsPrintOnline({-1, -1}, true, !turn);
+
+					Sleep(20);
+					send(connection, (char*)&point.at(0), sizeof(int), NULL);
+					Sleep(20);
+
+					send(connection, (char*)&point.at(1), sizeof(int), NULL);
+					Sleep(20);
+
+					int bf = -1;
+					Sleep(20);
+					send(connection, (char*)&bf, sizeof(int), NULL);
+					Sleep(20);
+
+					send(connection, (char*)&bf, sizeof(int), NULL);
+					Sleep(20);
+
+					return;
+				}
+				case 1:
+				{
+					std::thread([]() {PlaySound(L"sounds/hit.wav", NULL, SND_ASYNC); }).join();
+
+					(main_player_id ? player1->setPoint(point, 2) : player2->setPoint(point, 2));
+					//system("cls");
+					printf("\x1b[H");
+
+					fieldsPrintOnline(point, true, turn);
+
+					Sleep(20);
+					send(connection, (char*)&point.at(0), sizeof(int), NULL);
+					Sleep(20);
+
+					send(connection, (char*)&point.at(1), sizeof(int), NULL);
+					Sleep(20);
+
+					
+
+
+					if (getState() > 0)
+					{
+						int bf = -1;
+						Sleep(20);
+						send(connection, (char*)&bf, sizeof(int), NULL);
+						Sleep(20);
+
+						send(connection, (char*)&bf, sizeof(int), NULL);
+						Sleep(20);
+						return;
+					}
+				}
+					break;
+				default:
+					break;
+				}
+			}
+		}
 	}
 
-	return state;
 }
 
-void Game::changeTurn()
+int Game::getState()
 {
+	if (!player1->getState())
+		return 2;
+	if (!player2->getState())
+		return 1;
+	return 0;
+}
 
-	std::cout << "Next turn!\n";
-	system("pause");
+void Game::changeTurn(bool online)
+{
+	if (!online)
+	{
+		std::cout << "Next turn!\n";
+		system("pause");
+	}
 
 	turn = !turn;
 }
@@ -168,7 +280,7 @@ int localTwoPlayersGame()
 			break;
 		}
 
-		game1.changeTurn();
+		game1.changeTurn(false);
 	}
 
 	std::thread([]() {PlaySound(L"sounds/win.wav", NULL, SND_ASYNC); }).join();
@@ -201,21 +313,15 @@ void Game::setPlayer(int id, bool mode)
 	if (!id)
 	{
 		player1 = new Player;
+		main_player_id = 0;
 		return;
 	}
 	else
 	{
 		player2 = new Player;
+		main_player_id = 1;
 		return;
 	}
-}
-
-bool Game::allDone()
-{
-	if (player1->allGood() && player2->allGood())
-		return true;
-	else
-		return false;
 }
 
 std::vector<std::vector<std::vector<int>>> Game::getPlayer(int id)
@@ -224,4 +330,58 @@ std::vector<std::vector<std::vector<int>>> Game::getPlayer(int id)
 		return player1->getAll();
 	else
 		return player2->getAll();
+}
+
+void Game::fieldsPrintOnline(std::vector<int> point, bool fogOfWar, int _turn)
+{
+	std::vector<std::vector<int>> field1 = (main_player_id ? player2->getField() : player1->getField());
+	std::vector<std::vector<int>> field2 = (main_player_id ? player1->getField() : player2->getField());
+
+	std::cout << "Player " << main_player_id + 1 << std::endl;
+	fieldPrint(field1, false, {-1, -1});
+
+	std::cout << "\n" << (main_player_id == _turn ? "Your" : "Enemy") << " turn. \n\n";
+	std::cout << "Player " << (main_player_id ? "1" : "2") << std::endl;
+	fieldPrint(field2, fogOfWar, point);
+}
+
+int Game::getTurn()
+{
+	return turn;
+}
+
+int Game::getMainPlayer()
+{
+	return main_player_id;
+}
+
+void Game::attackMainPlayer(std::vector<int> point)
+{
+	std::vector<std::vector<int>> main_field = (main_player_id ? player2->getField() : player1->getField());
+
+	switch (main_field.at(point.at(0)).at(point.at(1)))
+	{
+	case 0:
+		std::thread([]() {PlaySound(L"sounds/miss.wav", NULL, SND_ASYNC); }).join();
+
+		(main_player_id ? player2->setPoint(point, 3) : player1->setPoint(point, 3));
+		//system("cls");
+		printf("\x1b[H");
+
+		fieldsPrintOnline({-1, -1}, true, !main_player_id);
+		break;
+	case 1:
+		std::thread([]() {PlaySound(L"sounds/hit.wav", NULL, SND_ASYNC); }).join();
+
+		(main_player_id ? player2->setPoint(point, 2) : player1->setPoint(point, 2));
+		//system("cls");
+		printf("\x1b[H");
+
+		fieldsPrintOnline({-1, -1}, true, !main_player_id);
+
+		break;
+	default:
+		break;
+	}
+
 }

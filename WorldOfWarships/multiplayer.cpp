@@ -107,10 +107,10 @@ int client()
 	game1 = new Game(2);
 	game1->setPlayer(1, true);
 
-	startupSend(game1, client_socket, 1);
-
 	system("cls");
-	std::cout << "Waiting for another player...";
+	std::cout << "Waiting for another player..." << std::endl;
+
+	startupSend(game1, client_socket, 1);
 
 	while (!is_func_ended);
 
@@ -202,10 +202,11 @@ int server()
 	game1 = new Game(2);
 	game1->setPlayer(0, true);
 
-	startupSend(game1, client_connection, 0);
 
 	system("cls");
-	std::cout << "Waiting for another player...";
+	std::cout << "Waiting for another player..." << std::endl;
+
+	startupSend(game1, client_connection, 0);
 
 	while (!is_func_ended);
 
@@ -224,10 +225,51 @@ int server()
 
 int multiplayerGame(Game*& game1, SOCKET& connection)
 {
-	system("cls");
-	game1->fieldsPrint({ -1, -1 }, { -1, -1 }, 0);
+	int main_player = game1->getMainPlayer();
 
-	return 0;
+	system("cls");
+	game1->fieldsPrintOnline({-1, -1}, true, game1->getTurn());
+
+	while (true)
+	{
+		if (game1->getTurn() == main_player)
+		{
+			game1->attackOnline(connection);
+
+			game1->changeTurn(true);
+		}
+		else
+		{
+			while (true)
+			{
+				std::vector<int> point(2);
+				recv(connection, (char*)&point.at(0), sizeof(int), NULL);
+				recv(connection, (char*)&point.at(1), sizeof(int), NULL);
+
+				if (point.at(0) == -1)
+					break;
+
+				game1->attackMainPlayer(point);
+			}
+			game1->changeTurn(true);
+		}
+
+		if (game1->getState() > 0)
+			break;
+	}
+	const int state = game1->getState();
+
+	if (state - 1 == main_player)
+		std::thread([]() {PlaySound(L"sounds/win.wav", NULL, SND_ASYNC); }).join();
+
+	system("cls");
+
+	game1->fieldsPrintOnline({ -1, -1 }, false, game1->getTurn());
+
+	std::cout << "\nYou " << (state - 1 == main_player ? "win!" : "lose :(") << std::endl;
+	system("pause");
+
+	return state;
 }
 
 int multiplayer()
