@@ -16,6 +16,47 @@ Player::Player()
 	}
 }
 
+Player::Player(std::vector<std::vector<int>> _field, std::vector<std::vector<int>> _all_ships, std::vector<std::vector<int>> _dead_ships)
+{
+	field = _field;
+	all_ships = _all_ships;
+	dead_ships = _dead_ships;
+}
+
+Player::Player(int param)
+{
+	switch (param)
+	{
+	case 0:
+	{
+		system("cls");
+		std::vector<std::vector<std::vector<int>>> the_answer = fieldCreateCpu();
+
+
+		field = the_answer.at(0);
+		all_ships = the_answer.at(1);
+		dead_ships.resize(all_ships.size());
+
+		for (size_t i = 0; i < all_ships.size(); i++)
+		{
+			dead_ships.at(i).push_back(all_ships.at(i).at(0));
+		}
+		break;
+	}
+	case 1:
+	{
+		field = {};
+		all_ships = {};
+		dead_ships = {};
+		break;
+	}
+	default:
+	{
+		break;
+	}
+	}
+}
+
 std::vector<std::vector<std::vector<int>>> fieldCreate()
 {
 	system("cls");
@@ -168,7 +209,6 @@ std::vector<std::vector<std::vector<int>>> fieldCreate()
 
 	return the_answer;
 }
-
 
 std::vector<std::vector<std::vector<int>>> fieldCreateRandom()
 {
@@ -383,4 +423,16 @@ bool Player::getState()
 	}
 
 	return state;
+}
+
+void Player::setAll(std::vector<std::vector<int>> _field, std::vector<std::vector<int>> _all_ships, std::vector<std::vector<int>> _dead_ships)
+{
+	field = _field;
+	all_ships = _all_ships;
+	dead_ships = _dead_ships;
+}
+
+std::vector<std::vector<std::vector<int>>> Player::getAll()
+{
+	return { field, all_ships, dead_ships };
 }
