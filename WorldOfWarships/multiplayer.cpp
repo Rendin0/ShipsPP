@@ -1,4 +1,5 @@
 #include "header.h"
+#include "ipfinder.h"
 
 void startupRecv(Game*& game1, SOCKET& connection, int& is_func_ended, int need_plr)
 {
@@ -145,8 +146,24 @@ int server()
 		return 1;
 	}
 
+	std::vector<std::string> ips = ipFinder();
+	if (ips.empty())
+	{
+		std::cout << "No local networks found." << std::endl;
+		return 1;
+	}
+
 	in_addr ip_to_num;
-	err_stat = inet_pton(AF_INET, "127.0.0.1", &ip_to_num);
+	if (ips.size() > 1)
+	{
+		err_stat = inet_pton(AF_INET, ips.at(choice("Choose local network ip", ips)).c_str(), &ip_to_num);
+	}
+	else
+	{
+		err_stat = inet_pton(AF_INET, ips.at(0).c_str(), &ip_to_num);
+	}
+
+
 	if (err_stat <= 0)
 	{
 		std::cout << "Error in IP translation to special numeric format" << std::endl;
@@ -177,6 +194,14 @@ int server()
 		return 1;
 	}
 
+	system("cls");
+	std::string host_name;
+	std::cout << "Enter lobby name: ";
+	std::getline(std::cin, host_name, '\n');
+
+	system("cls");
+	std::cout << "Waiting for client to connect..." << std::endl;
+
 	sockaddr_in client_info;
 	ZeroMemory(&client_info, sizeof(client_info));
 
@@ -191,6 +216,7 @@ int server()
 		WSACleanup();
 		return 1;
 	}
+	system("cls");
 
 	Game* game1;
 
@@ -228,7 +254,7 @@ int multiplayerGame(Game*& game1, SOCKET& connection)
 	int main_player = game1->getMainPlayer();
 
 	system("cls");
-	game1->fieldsPrintOnline({-1, -1}, true, game1->getTurn());
+	game1->fieldsPrintOnline({ -1, -1 }, true, game1->getTurn());
 
 	while (true)
 	{

@@ -77,4 +77,3 @@ int choice(std::string text, std::vector<std::string> str)
 		}
 	}
 }
-
