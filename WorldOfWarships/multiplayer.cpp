@@ -52,6 +52,201 @@ int startupSend(Game*& game1, SOCKET& connection, int player)
 	return 0;
 }
 
+void serverChoiceRecv(std::vector<sockaddr_in>& servers, std::vector<std::string>& host_names, SOCKET& broadcast_socket, bool& choosing)
+{
+	while (choosing)
+	{
+		Sleep(10);
+		char buf[128];
+		sockaddr_in server_info;
+		int server_info_size = sizeof(server_info);
+		recvfrom(broadcast_socket, buf, sizeof(buf), NULL, (sockaddr*)&server_info, &server_info_size);
+
+		if (buf != "ping1337wowkek")
+		{
+			servers.push_back(server_info);
+			host_names.push_back(buf);
+		}
+	}
+}
+
+void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& choosing, SOCKET& sock, sockaddr_in& broadcast, std::vector<sockaddr_in>& servers)
+{
+	system("cls");
+	std::cout << "Servers (R to reaload): " << std::endl << std::endl;
+	Sleep(2000);
+	for (size_t i = 0; i < host_names.size(); i++)
+	{
+		std::cout << (i == index ? "\u001b[44m" : "") << host_names.at(i) << (i == index ? "\u001b[0m" : "") << std::endl;
+	}
+
+	while (choosing)
+	{
+		if (host_names.empty())
+		{
+			Sleep(200);
+			if (host_names.empty())
+			{
+				host_names.clear();
+				servers.clear();
+				char msg[32] = "ping1337wowkek";
+				sendto(sock, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
+				Sleep(100);
+				continue;
+			}
+			printf("\x1b[H");
+			std::thread([]() {PlaySound(L"sounds/move.wav", NULL, SND_ASYNC); }).join();
+			std::cout << "Servers (R to reaload): " << std::endl << std::endl;
+			for (size_t i = 0; i < host_names.size(); i++)
+			{
+				std::cout << (i == index ? "\u001b[44m" : "") << host_names.at(i) << (i == index ? "\u001b[0m" : "") << std::endl;
+			}
+		}
+		if (index >= host_names.size())
+		{
+			system("cls");
+			index = host_names.size() - 1;
+			std::cout << "Servers (R to reaload): " << std::endl << std::endl;
+			for (size_t i = 0; i < host_names.size(); i++)
+			{
+				std::cout << (i == index ? "\u001b[44m" : "") << host_names.at(i) << (i == index ? "\u001b[0m" : "") << std::endl;
+			}
+		}
+		if (_kbhit())
+		{
+			int key = _getch();
+			switch (key)
+			{
+			case 72:
+			{
+				index = (index - 1) < 0 ? host_names.size() - 1 : index - 1;
+				break;
+			}
+			case 80:
+			{
+				index = (index + 1) % host_names.size();
+				break;
+			}
+			case 13:
+			{
+				choosing = false;
+				char msg[32] = "ping1337wowkek";
+				std::thread([]() {PlaySound(L"sounds/confirm.wav", NULL, SND_ASYNC); }).join();
+				sendto(sock, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
+
+				return;
+				break;
+			}
+			case 114:
+			{
+				host_names.clear();
+				servers.clear();
+				char msg[32] = "ping1337wowkek";
+				continue;
+			}
+			default:
+				break;
+			}
+			//system("cls");
+			printf("\x1b[H");
+			std::thread([]() {PlaySound(L"sounds/move.wav", NULL, SND_ASYNC); }).join();
+			std::cout << "Servers (R to reaload): " << std::endl << std::endl;
+			for (size_t i = 0; i < host_names.size(); i++)
+			{
+				std::cout << (i == index ? "\u001b[44m" : "") << host_names.at(i) << (i == index ? "\u001b[0m" : "") << std::endl;
+			}
+		}
+	}
+}
+
+sockaddr_in serverChoice()
+{
+	SOCKET broadcast_socket = socket(AF_INET, SOCK_DGRAM, NULL);
+	if (broadcast_socket == INVALID_SOCKET)
+	{
+		std::cout << "Error socket init #" << WSAGetLastError() << std::endl;
+		closesocket(broadcast_socket);
+		WSACleanup();
+		exit(1);
+	}
+
+	sockaddr_in broadcast_info;
+	ZeroMemory(&broadcast_info, sizeof(broadcast_info));
+
+	in_addr ip_to_num;
+	int err_stat = inet_pton(AF_INET, "192.168.0.255", &ip_to_num);
+	if (err_stat <= 0)
+	{
+		std::cout << "Error in IP translation to special numeric format" << std::endl;
+		closesocket(broadcast_socket);
+		WSACleanup();
+		exit(1);
+	}
+
+	broadcast_info.sin_addr = ip_to_num;
+	broadcast_info.sin_family = AF_INET;
+	broadcast_info.sin_port = htons(30000u);
+
+	char bOptVal = TRUE;
+	setsockopt(broadcast_socket, SOL_SOCKET, SO_BROADCAST, &bOptVal, sizeof(bOptVal));
+
+	std::vector<std::string> host_names;
+	std::vector<sockaddr_in> servers;
+
+	bool choosing = true;
+	int index = 0;
+
+	sockaddr_in isocket_info;
+	ZeroMemory(&isocket_info, sizeof(isocket_info));
+
+	isocket_info.sin_addr.s_addr = INADDR_ANY;
+	isocket_info.sin_family = AF_INET;
+	isocket_info.sin_port = htons(20000u);
+
+	err_stat = bind(broadcast_socket, (sockaddr*)&isocket_info, sizeof(isocket_info));
+	if (err_stat != 0)
+	{
+		std::cout << "Error socket binding server info #" << WSAGetLastError() << std::endl;
+		closesocket(broadcast_socket);
+		WSACleanup();
+		exit(1);
+	}
+
+	std::thread srvchrecv(serverChoiceRecv, std::ref(servers), std::ref(host_names), std::ref(broadcast_socket), std::ref(choosing));
+
+	serverChoiceMenu(host_names, index, choosing, broadcast_socket, broadcast_info, servers);
+
+	srvchrecv.join();
+
+	char msg_end[32] = "yoplsclose";
+	sendto(broadcast_socket, msg_end, sizeof(msg_end), NULL, (sockaddr*)&broadcast_info, sizeof(broadcast_info));
+	closesocket(broadcast_socket);
+
+	return servers.at(index);
+}
+
+void connectionReciver(std::string& host_name, SOCKET& broadcast_socket)
+{
+	sockaddr_in client_info;
+	int client_info_size = sizeof(client_info);
+
+	char buf[32];
+
+	while (true)
+	{
+		recvfrom(broadcast_socket, buf, sizeof(buf), NULL, (sockaddr*)&client_info, &client_info_size);
+		if (buf[0] == 'y')
+			break;
+		Sleep(rand() % 100);
+		client_info.sin_family = AF_INET;
+		client_info.sin_port = htons(20000u);
+
+		sendto(broadcast_socket, host_name.c_str(), sizeof(host_name), NULL, (sockaddr*)&client_info, client_info_size);
+		ZeroMemory(&client_info, client_info_size);
+		client_info_size = sizeof(client_info);
+	}
+}
+
 int client()
 {
 	WSAData ws_data;
@@ -62,6 +257,9 @@ int client()
 		return 1;
 	}
 
+	sockaddr_in server_info = serverChoice();
+	server_info.sin_port = htons(2345);
+
 	SOCKET client_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (client_socket == INVALID_SOCKET)
 	{
@@ -70,24 +268,6 @@ int client()
 		WSACleanup();
 		return 1;
 	}
-
-	in_addr ip_to_num;
-	err_stat = inet_pton(AF_INET, "127.0.0.1", &ip_to_num);
-	if (err_stat <= 0)
-	{
-		std::cout << "Error in IP translation to special numeric format" << std::endl;
-		closesocket(client_socket);
-		WSACleanup();
-		return 1;
-	}
-
-	sockaddr_in server_info;
-
-	ZeroMemory(&server_info, sizeof(server_info));
-
-	server_info.sin_family = AF_INET;
-	server_info.sin_addr = ip_to_num;
-	server_info.sin_port = htons(2345);
 
 	err_stat = connect(client_socket, (sockaddr*)&server_info, sizeof(server_info));
 
@@ -146,6 +326,16 @@ int server()
 		return 1;
 	}
 
+	SOCKET broadcast_socket = socket(AF_INET, SOCK_DGRAM, NULL);
+	if (broadcast_socket == INVALID_SOCKET)
+	{
+		std::cout << "Error socket init #" << WSAGetLastError() << std::endl;
+		closesocket(broadcast_socket);
+		closesocket(server_socket);
+		WSACleanup();
+		return 1;
+	}
+
 	std::vector<std::string> ips = ipFinder();
 	if (ips.empty())
 	{
@@ -199,6 +389,26 @@ int server()
 	std::cout << "Enter lobby name: ";
 	std::getline(std::cin, host_name, '\n');
 
+
+	sockaddr_in broadcast_info;
+	ZeroMemory(&broadcast_info, sizeof(broadcast_info));
+
+	broadcast_info.sin_addr = ip_to_num;
+	broadcast_info.sin_family = AF_INET;
+	broadcast_info.sin_port = htons(30000u);
+
+	err_stat = bind(broadcast_socket, (sockaddr*)&broadcast_info, sizeof(broadcast_info));
+	if (err_stat != 0)
+	{
+		std::cout << "Error socket binding server info #" << WSAGetLastError() << std::endl;
+		closesocket(server_socket);
+		closesocket(broadcast_socket);
+		WSACleanup();
+		return 1;
+	}
+
+	std::thread cnnctrecv(connectionReciver, std::ref(host_name), std::ref(broadcast_socket));
+
 	system("cls");
 	std::cout << "Waiting for client to connect..." << std::endl;
 
@@ -216,6 +426,8 @@ int server()
 		WSACleanup();
 		return 1;
 	}
+	cnnctrecv.join();
+	closesocket(broadcast_socket);
 	system("cls");
 
 	Game* game1;
