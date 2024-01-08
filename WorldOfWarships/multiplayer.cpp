@@ -73,7 +73,9 @@ void serverChoiceRecv(std::vector<sockaddr_in>& servers, std::vector<std::string
 void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& choosing, SOCKET& sock, sockaddr_in& broadcast, std::vector<sockaddr_in>& servers)
 {
 	system("cls");
-	std::cout << "Servers (R to reaload): " << std::endl << std::endl;
+	char msg[32] = "ping1337wowkek";
+	sendto(sock, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
+	std::cout << "Servers (R to reload): " << std::endl << std::endl;
 	Sleep(2000);
 	for (size_t i = 0; i < host_names.size(); i++)
 	{
@@ -82,35 +84,22 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 
 	while (choosing)
 	{
-		if (host_names.empty())
-		{
-			Sleep(200);
-			if (host_names.empty())
-			{
-				host_names.clear();
-				servers.clear();
-				char msg[32] = "ping1337wowkek";
-				sendto(sock, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
-				Sleep(100);
-				continue;
-			}
-			printf("\x1b[H");
-			std::thread([]() {PlaySound(L"sounds/move.wav", NULL, SND_ASYNC); }).join();
-			std::cout << "Servers (R to reaload): " << std::endl << std::endl;
-			for (size_t i = 0; i < host_names.size(); i++)
-			{
-				std::cout << (i == index ? "\u001b[44m" : "") << host_names.at(i) << (i == index ? "\u001b[0m" : "") << std::endl;
-			}
-		}
-		if (index >= host_names.size())
+		/*if (index >= host_names.size() && !host_names.empty())
 		{
 			system("cls");
 			index = host_names.size() - 1;
-			std::cout << "Servers (R to reaload): " << std::endl << std::endl;
+			std::cout << "Servers (R to reload): " << std::endl << std::endl;
 			for (size_t i = 0; i < host_names.size(); i++)
 			{
 				std::cout << (i == index ? "\u001b[44m" : "") << host_names.at(i) << (i == index ? "\u001b[0m" : "") << std::endl;
 			}
+		}*/
+		//system("cls");
+		printf("\x1b[H");
+		std::cout << "Servers (R to reload): " << std::endl << std::endl;
+		for (size_t i = 0; i < host_names.size(); i++)
+		{
+			std::cout << (i == index ? "\u001b[44m" : "") << host_names.at(i) << (i == index ? "\u001b[0m" : "") << std::endl;
 		}
 		if (_kbhit())
 		{
@@ -119,42 +108,49 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 			{
 			case 72:
 			{
-				index = (index - 1) < 0 ? host_names.size() - 1 : index - 1;
+				if (!host_names.empty())
+				{
+					std::thread([]() {PlaySound(L"sounds/move.wav", NULL, SND_ASYNC); }).join();
+					index = (index - 1) < 0 ? host_names.size() - 1 : index - 1;
+				}
 				break;
 			}
 			case 80:
 			{
-				index = (index + 1) % host_names.size();
+				if (!host_names.empty())
+				{
+					std::thread([]() {PlaySound(L"sounds/move.wav", NULL, SND_ASYNC); }).join();
+					index = (index + 1) % host_names.size();
+				}
 				break;
 			}
 			case 13:
 			{
-				choosing = false;
-				char msg[32] = "ping1337wowkek";
-				std::thread([]() {PlaySound(L"sounds/confirm.wav", NULL, SND_ASYNC); }).join();
-				sendto(sock, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
+				if (!host_names.empty())
+				{
+					choosing = false;
+					std::thread([]() {PlaySound(L"sounds/confirm.wav", NULL, SND_ASYNC); }).join();
+					sendto(sock, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
 
-				return;
+					return;
+				}
 				break;
 			}
 			case 114:
 			{
+				system("cls");
+				std::cout << "Servers (R to reload): " << std::endl << std::endl;
+				index = 0;
 				host_names.clear();
 				servers.clear();
-				char msg[32] = "ping1337wowkek";
-				continue;
+				sendto(sock, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
+
+				break;
 			}
 			default:
 				break;
 			}
-			//system("cls");
-			printf("\x1b[H");
-			std::thread([]() {PlaySound(L"sounds/move.wav", NULL, SND_ASYNC); }).join();
-			std::cout << "Servers (R to reaload): " << std::endl << std::endl;
-			for (size_t i = 0; i < host_names.size(); i++)
-			{
-				std::cout << (i == index ? "\u001b[44m" : "") << host_names.at(i) << (i == index ? "\u001b[0m" : "") << std::endl;
-			}
+			
 		}
 	}
 }
