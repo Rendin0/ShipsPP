@@ -377,34 +377,10 @@ int server()
 		return 1;
 	}
 
-	std::vector<std::string> ips = ipFinder();
-	if (ips.empty())
-	{
-		std::cout << "No local networks found." << std::endl;
-		return 1;
-	}
-
-	in_addr ip_to_num;
-	if (ips.size() > 1)
-	{
-		err_stat = inet_pton(AF_INET, ips.at(choice("Choose local network ip", ips)).c_str(), &ip_to_num);
-	}
-	else
-	{
-		err_stat = inet_pton(AF_INET, ips.at(0).c_str(), &ip_to_num);
-	}
-
-
-	if (err_stat <= 0)
-	{
-		std::cout << "Error in IP translation to special numeric format" << std::endl;
-		return 1;
-	}
-
 	sockaddr_in server_info;
 	ZeroMemory(&server_info, sizeof(server_info));
 
-	server_info.sin_addr = ip_to_num;
+	server_info.sin_addr.s_addr = INADDR_ANY;
 	server_info.sin_family = AF_INET;
 	server_info.sin_port = htons(2345);
 
@@ -434,7 +410,7 @@ int server()
 	sockaddr_in broadcast_info;
 	ZeroMemory(&broadcast_info, sizeof(broadcast_info));
 
-	broadcast_info.sin_addr = ip_to_num;
+	broadcast_info.sin_addr.s_addr = INADDR_ANY;
 	broadcast_info.sin_family = AF_INET;
 	broadcast_info.sin_port = htons(30000u);
 
