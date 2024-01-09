@@ -70,13 +70,19 @@ void serverChoiceRecv(std::vector<sockaddr_in>& servers, std::vector<std::string
 	}
 }
 
-void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& choosing, SOCKET& sock, sockaddr_in& broadcast, std::vector<sockaddr_in>& servers)
+void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& choosing, SOCKET& broadcast_socket, sockaddr_in& broadcast, std::vector<sockaddr_in>& servers,
+	SOCKET& main_socket, bool& connected)
 {
+	sockaddr_in direct;
+	ZeroMemory(&direct, sizeof(direct));
+
+	direct.sin_family = AF_INET;
+	direct.sin_port = htons(2345);
+
 	system("cls");
 	char msg[32] = "ping1337wowkek";
-	sendto(sock, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
-	std::cout << "Servers (R to reload): " << std::endl << std::endl;
-	Sleep(2000);
+	sendto(broadcast_socket, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
+	std::cout << "Servers (R to reload, F to direct connect): " << std::endl << std::endl;
 	for (size_t i = 0; i < host_names.size(); i++)
 	{
 		std::cout << (i == index ? "\u001b[44m" : "") << host_names.at(i) << (i == index ? "\u001b[0m" : "") << std::endl;
@@ -88,7 +94,7 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 		{
 			system("cls");
 			index = host_names.size() - 1;
-			std::cout << "Servers (R to reload): " << std::endl << std::endl;
+			std::cout << "Servers (R to reload, F to direct connect): " << std::endl << std::endl;
 			for (size_t i = 0; i < host_names.size(); i++)
 			{
 				std::cout << (i == index ? "\u001b[44m" : "") << host_names.at(i) << (i == index ? "\u001b[0m" : "") << std::endl;
@@ -96,7 +102,7 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 		}*/
 		//system("cls");
 		printf("\x1b[H");
-		std::cout << "Servers (R to reload): " << std::endl << std::endl;
+		std::cout << "Servers (R to reload, F to direct connect): " << std::endl << std::endl;
 		for (size_t i = 0; i < host_names.size(); i++)
 		{
 			std::cout << (i == index ? "\u001b[44m" : "") << host_names.at(i) << (i == index ? "\u001b[0m" : "") << std::endl;
@@ -130,7 +136,7 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 				{
 					choosing = false;
 					std::thread([]() {PlaySound(L"sounds/confirm.wav", NULL, SND_ASYNC); }).join();
-					sendto(sock, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
+					sendto(broadcast_socket, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
 
 					return;
 				}
@@ -139,23 +145,63 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 			case 114:
 			{
 				system("cls");
-				std::cout << "Servers (R to reload): " << std::endl << std::endl;
+				std::cout << "Servers (R to reload, F to direct connect): " << std::endl << std::endl;
 				index = 0;
 				host_names.clear();
 				servers.clear();
-				sendto(sock, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
+				sendto(broadcast_socket, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
 
 				break;
+			}
+			case 102:
+			{
+				char direct_connection[32];
+				system("cls");
+				std::cout << "Enter ip (format: 127.0.0.1): ";
+				std::cin >> direct_connection;
+				in_addr ip_to_num;
+				ZeroMemory(&ip_to_num, sizeof(ip_to_num));
+
+				int err_stat = inet_pton(AF_INET, direct_connection, &ip_to_num);
+				if (err_stat <= 0)
+				{
+					std::cout << "Wrong ip format" << std::endl;
+					system("pause");
+					system("cls");
+					break;
+				}
+				direct.sin_addr = ip_to_num;
+
+				std::cout << "Trying to connect..." << std::endl;
+				err_stat = connect(main_socket, (sockaddr*)&direct, sizeof(direct));
+				if (err_stat != 0) {
+					std::cout << "Server not found. " << std::endl;
+					system("cls");
+					break;
+				}
+
+				if (servers.empty())
+					servers.push_back(direct);
+				else
+					servers.at(0) = direct;
+				index = 0;
+				choosing = false;
+				connected = true;
+				servers.at(index).sin_port = htons(30000u);
+
+				sendto(broadcast_socket, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
+
+				return;
 			}
 			default:
 				break;
 			}
-			
+
 		}
 	}
 }
 
-sockaddr_in serverChoice()
+sockaddr_in serverChoice(SOCKET& main_socket, bool& connected)
 {
 	SOCKET broadcast_socket = socket(AF_INET, SOCK_DGRAM, NULL);
 	if (broadcast_socket == INVALID_SOCKET)
@@ -210,7 +256,7 @@ sockaddr_in serverChoice()
 
 	std::thread srvchrecv(serverChoiceRecv, std::ref(servers), std::ref(host_names), std::ref(broadcast_socket), std::ref(choosing));
 
-	serverChoiceMenu(host_names, index, choosing, broadcast_socket, broadcast_info, servers);
+	serverChoiceMenu(host_names, index, choosing, broadcast_socket, broadcast_info, servers, main_socket, connected);
 
 	srvchrecv.join();
 
@@ -221,14 +267,14 @@ sockaddr_in serverChoice()
 	return servers.at(index);
 }
 
-void connectionReciver(std::string& host_name, SOCKET& broadcast_socket)
+void connectionReciver(std::string& host_name, SOCKET& broadcast_socket, bool& connected)
 {
 	sockaddr_in client_info;
 	int client_info_size = sizeof(client_info);
 
 	char buf[32];
 
-	while (true)
+	while (!connected)
 	{
 		recvfrom(broadcast_socket, buf, sizeof(buf), NULL, (sockaddr*)&client_info, &client_info_size);
 		if (buf[0] == 'y' && buf[1] == 'o' && buf[2] == 'p')
@@ -252,9 +298,8 @@ int client()
 		std::cout << "Error WinSock version init #" << WSAGetLastError() << std::endl;
 		return 1;
 	}
+	bool connected = false;
 
-	sockaddr_in server_info = serverChoice();
-	server_info.sin_port = htons(2345);
 
 	SOCKET client_socket = socket(AF_INET, SOCK_STREAM, 0);
 	if (client_socket == INVALID_SOCKET)
@@ -265,13 +310,19 @@ int client()
 		return 1;
 	}
 
-	err_stat = connect(client_socket, (sockaddr*)&server_info, sizeof(server_info));
+	sockaddr_in server_info = serverChoice(client_socket, connected);
+	server_info.sin_port = htons(2345);
 
-	if (err_stat != 0) {
-		std::cout << "Connection to Server is FAILED. Error # " << WSAGetLastError() << std::endl;
-		closesocket(client_socket);
-		WSACleanup();
-		return 1;
+	if (!connected)
+	{
+		err_stat = connect(client_socket, (sockaddr*)&server_info, sizeof(server_info));
+
+		if (err_stat != 0) {
+			std::cout << "Connection to Server is FAILED. Error # " << WSAGetLastError() << std::endl;
+			closesocket(client_socket);
+			WSACleanup();
+			return 1;
+		}
 	}
 
 	Game* game1;
@@ -402,8 +453,8 @@ int server()
 		WSACleanup();
 		return 1;
 	}
-
-	std::thread cnnctrecv(connectionReciver, std::ref(host_name), std::ref(broadcast_socket));
+	bool connected = false;
+	std::thread cnnctrecv(connectionReciver, std::ref(host_name), std::ref(broadcast_socket), std::ref(connected));
 
 	system("cls");
 	std::cout << "Waiting for client to connect..." << std::endl;
@@ -422,6 +473,10 @@ int server()
 		WSACleanup();
 		return 1;
 	}
+	connected = true;
+	char msg[32] = "ping1337wowkek";
+	sendto(broadcast_socket, msg, sizeof(msg), NULL, (sockaddr*)&client_info, client_info_size);
+
 	cnnctrecv.join();
 	closesocket(broadcast_socket);
 	system("cls");
