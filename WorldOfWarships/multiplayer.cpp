@@ -462,12 +462,13 @@ int server()
 	{
 		std::cout << "Client detected, but can't connect to a client. Error # " << WSAGetLastError() << std::endl;
 		closesocket(server_socket);
+		closesocket(broadcast_socket);
 		closesocket(client_connection);
 		WSACleanup();
 		return 1;
 	}
 	connected = true;
-	
+
 	cnnctrecv.detach();
 	closesocket(broadcast_socket);
 	system("cls");
