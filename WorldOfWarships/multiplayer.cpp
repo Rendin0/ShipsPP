@@ -136,7 +136,6 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 				{
 					choosing = false;
 					std::thread([]() {PlaySound(L"sounds/confirm.wav", NULL, SND_ASYNC); }).join();
-					sendto(broadcast_socket, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
 
 					return;
 				}
@@ -188,8 +187,6 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 				choosing = false;
 				connected = true;
 				servers.at(index).sin_port = htons(30000u);
-
-				sendto(broadcast_socket, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
 
 				return;
 			}
@@ -258,10 +255,8 @@ sockaddr_in serverChoice(SOCKET& main_socket, bool& connected)
 
 	serverChoiceMenu(host_names, index, choosing, broadcast_socket, broadcast_info, servers, main_socket, connected);
 
-	srvchrecv.join();
+	srvchrecv.detach();
 
-	char msg_end[32] = "yoplsclose";
-	sendto(broadcast_socket, msg_end, sizeof(msg_end), NULL, (sockaddr*)&servers.at(index), sizeof(servers.at(index)));
 	closesocket(broadcast_socket);
 
 	return servers.at(index);
@@ -277,8 +272,6 @@ void connectionReciver(std::string& host_name, SOCKET& broadcast_socket, bool& c
 	while (!connected)
 	{
 		recvfrom(broadcast_socket, buf, sizeof(buf), NULL, (sockaddr*)&client_info, &client_info_size);
-		if (buf[0] == 'y' && buf[1] == 'o' && buf[2] == 'p')
-			break;
 		Sleep(rand() % 100);
 		client_info.sin_family = AF_INET;
 		client_info.sin_port = htons(20000u);
@@ -474,10 +467,8 @@ int server()
 		return 1;
 	}
 	connected = true;
-	char msg[32] = "ping1337wowkek";
-	sendto(broadcast_socket, msg, sizeof(msg), NULL, (sockaddr*)&client_info, client_info_size);
-
-	cnnctrecv.join();
+	
+	cnnctrecv.detach();
 	closesocket(broadcast_socket);
 	system("cls");
 
