@@ -179,6 +179,7 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 					break;
 				}
 
+				Sleep(200);
 				if (servers.empty())
 					servers.push_back(direct);
 				else
