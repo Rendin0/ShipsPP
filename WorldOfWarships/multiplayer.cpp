@@ -215,7 +215,7 @@ sockaddr_in serverChoice()
 	srvchrecv.join();
 
 	char msg_end[32] = "yoplsclose";
-	sendto(broadcast_socket, msg_end, sizeof(msg_end), NULL, (sockaddr*)&broadcast_info, sizeof(broadcast_info));
+	sendto(broadcast_socket, msg_end, sizeof(msg_end), NULL, (sockaddr*)&servers.at(index), sizeof(servers.at(index)));
 	closesocket(broadcast_socket);
 
 	return servers.at(index);
@@ -231,7 +231,7 @@ void connectionReciver(std::string& host_name, SOCKET& broadcast_socket)
 	while (true)
 	{
 		recvfrom(broadcast_socket, buf, sizeof(buf), NULL, (sockaddr*)&client_info, &client_info_size);
-		if (buf[0] == 'y')
+		if (buf[0] == 'y' && buf[1] == 'o' && buf[2] == 'p')
 			break;
 		Sleep(rand() % 100);
 		client_info.sin_family = AF_INET;
@@ -495,13 +495,15 @@ int multiplayerGame(Game*& game1, SOCKET& connection)
 
 	if (state - 1 == main_player)
 		std::thread([]() {PlaySound(L"sounds/win.wav", NULL, SND_ASYNC); }).join();
+	else
+		std::thread([]() {PlaySound(L"sounds/lose.wav", NULL, SND_ASYNC); }).join();
+
 
 	system("cls");
 
 	game1->fieldsPrintOnline({ -1, -1 }, false, game1->getTurn());
 
 	std::cout << "\nYou " << (state - 1 == main_player ? "win!" : "lose :(") << std::endl;
-	system("pause");
 
 	return state;
 }

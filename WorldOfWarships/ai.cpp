@@ -80,7 +80,7 @@ void Game::computerAttack()
 					player2->cpu_pointers.clear();
 					continue;
 				}
-				
+
 			}
 		}
 		else
@@ -269,7 +269,11 @@ int localVersusComputerGame()
 		}
 	}
 
-	std::thread([]() {PlaySound(L"sounds/win.wav", NULL, SND_ASYNC); }).join();
+	if (game1.getState() == 1)
+		std::thread([]() {PlaySound(L"sounds/win.wav", NULL, SND_ASYNC); }).join();
+	else
+		std::thread([]() {PlaySound(L"sounds/lose.wav", NULL, SND_ASYNC); }).join();
+
 
 	system("cls");
 	game1.fieldsPrint({ -1, -1 }, { -1, -1 }, false);
