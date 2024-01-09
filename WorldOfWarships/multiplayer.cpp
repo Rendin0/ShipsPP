@@ -1,5 +1,4 @@
 #include "header.h"
-#include "ipfinder.h"
 
 void startupRecv(Game*& game1, SOCKET& connection, int& is_func_ended, int need_plr)
 {
