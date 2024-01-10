@@ -141,6 +141,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ai.cpp" />
+    <ClCompile Include="broadcasts.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="menu.cpp" />
     <ClCompile Include="multiplayer.cpp" />

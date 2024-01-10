@@ -1,5 +1,7 @@
 #include "header.h"
 
+std::vector<std::string> getBroadcastAddresses();
+
 void startupRecv(Game*& game1, SOCKET& connection, int& is_func_ended, int need_plr)
 {
 	std::vector<std::vector<std::vector<int>>> buff(3);
@@ -63,13 +65,26 @@ void serverChoiceRecv(std::vector<sockaddr_in>& servers, std::vector<std::string
 
 		if (buf != "ping1337wowkek")
 		{
-			servers.push_back(server_info);
-			host_names.push_back(buf);
+			bool founded = false;
+
+			for (size_t i = 0; i < host_names.size(); i++)
+			{
+				if (host_names.at(i) == buf)
+				{
+					founded = true;
+					break;
+				}
+			}
+			if (!founded)
+			{
+				servers.push_back(server_info);
+				host_names.push_back(buf);
+			}
 		}
 	}
 }
 
-void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& choosing, SOCKET& broadcast_socket, sockaddr_in& broadcast, std::vector<sockaddr_in>& servers,
+void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& choosing, SOCKET& broadcast_socket, std::vector<sockaddr_in>& broadcasts, std::vector<sockaddr_in>& servers,
 	SOCKET& main_socket, bool& connected)
 {
 	sockaddr_in direct;
@@ -80,7 +95,9 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 
 	system("cls");
 	char msg[32] = "ping1337wowkek";
-	sendto(broadcast_socket, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
+	for (size_t i = 0; i < broadcasts.size(); i++)
+		sendto(broadcast_socket, msg, sizeof(msg), NULL, (sockaddr*)&broadcasts.at(i), sizeof(broadcasts.at(i)));
+
 	std::cout << "Servers (R to reload, F to direct connect): " << std::endl << std::endl;
 	for (size_t i = 0; i < host_names.size(); i++)
 	{
@@ -147,7 +164,8 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 				index = 0;
 				host_names.clear();
 				servers.clear();
-				sendto(broadcast_socket, msg, sizeof(msg), NULL, (sockaddr*)&broadcast, sizeof(broadcast));
+				for (size_t i = 0; i < broadcasts.size(); i++)
+					sendto(broadcast_socket, msg, sizeof(msg), NULL, (sockaddr*)&broadcasts.at(i), sizeof(broadcasts.at(i)));
 
 				break;
 			}
@@ -209,22 +227,30 @@ sockaddr_in serverChoice(SOCKET& main_socket, bool& connected)
 		exit(1);
 	}
 
-	sockaddr_in broadcast_info;
-	ZeroMemory(&broadcast_info, sizeof(broadcast_info));
-
-	in_addr ip_to_num;
-	int err_stat = inet_pton(AF_INET, "192.168.0.255", &ip_to_num);
-	if (err_stat <= 0)
+	int err_stat;
+	std::vector<sockaddr_in> broadcasts_infos;
+	std::vector<std::string> broadcasts_ips = getBroadcastAddresses();
+	for (int i = 0; i < broadcasts_ips.size(); i++)
 	{
-		std::cout << "Error in IP translation to special numeric format" << std::endl;
-		closesocket(broadcast_socket);
-		WSACleanup();
-		exit(1);
-	}
+		sockaddr_in broadcast_info;
+		ZeroMemory(&broadcast_info, sizeof(broadcast_info));
 
-	broadcast_info.sin_addr = ip_to_num;
-	broadcast_info.sin_family = AF_INET;
-	broadcast_info.sin_port = htons(30000u);
+		in_addr ip_to_num;
+		err_stat = inet_pton(AF_INET, broadcasts_ips.at(i).c_str(), &ip_to_num);
+		if (err_stat <= 0)
+		{
+			std::cout << "Error in IP translation to special numeric format" << std::endl;
+			closesocket(broadcast_socket);
+			WSACleanup();
+			exit(1);
+		}
+
+		broadcast_info.sin_addr = ip_to_num;
+		broadcast_info.sin_family = AF_INET;
+		broadcast_info.sin_port = htons(30000u);
+
+		broadcasts_infos.push_back(broadcast_info);
+	}
 
 	char bOptVal = TRUE;
 	setsockopt(broadcast_socket, SOL_SOCKET, SO_BROADCAST, &bOptVal, sizeof(bOptVal));
@@ -253,7 +279,7 @@ sockaddr_in serverChoice(SOCKET& main_socket, bool& connected)
 
 	std::thread srvchrecv(serverChoiceRecv, std::ref(servers), std::ref(host_names), std::ref(broadcast_socket), std::ref(choosing));
 
-	serverChoiceMenu(host_names, index, choosing, broadcast_socket, broadcast_info, servers, main_socket, connected);
+	serverChoiceMenu(host_names, index, choosing, broadcast_socket, broadcasts_infos, servers, main_socket, connected);
 
 	srvchrecv.detach();
 
