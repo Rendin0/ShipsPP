@@ -42,13 +42,14 @@ class Game
 	Player* player2;
 	int turn;
 	int main_player_id;
+	bool is_there_a_player;
 public:
 	Game(int mode);
 	void fieldsPrint(std::vector<int> point1, std::vector<int> point2, const bool fogOfWar);
 	void fieldsPrintOnline(std::vector<int> point, const bool fogOfWar, int _turn);
 	void attack();
 	void attackOnline(SOCKET& connection);
-	void computerAttack();
+	void computerAttack(bool& fog_of_war);
 	int getState();
 	void changeTurn(bool online);
 	int getTurn();
@@ -60,6 +61,7 @@ public:
 };
 int localTwoPlayersGame();
 int localVersusComputerGame();
+int computerVersusComputer();
 int menu(int state);
 int choice(std::string text, std::vector<std::string> str);
 

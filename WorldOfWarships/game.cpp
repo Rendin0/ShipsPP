@@ -8,24 +8,35 @@ Game::Game(int mode)
 	{
 		player1 = new Player;
 		player2 = new Player;
+		is_there_a_player = true;
 		break;
 	}
 	case 1:
 	{
 		player1 = new Player;
 		player2 = new Player(0);
+		is_there_a_player = true;
 		break;
 	}
 	case 2:
 	{
 		player1 = new Player(1);
 		player2 = new Player(1);
+		is_there_a_player = true;
+		break;
+	}
+	case 3:
+	{
+		player1 = new Player(0);
+		player2 = new Player(0);
+		is_there_a_player = false;
 		break;
 	}
 	default:
 	{
 		player1 = new Player(1);
 		player2 = new Player(1);
+		is_there_a_player = true;
 		break;
 	}
 	}
@@ -35,12 +46,22 @@ Game::Game(int mode)
 
 void Game::fieldsPrint(std::vector<int> point1, std::vector<int> point2, const bool fogOfWar)
 {
-	std::vector<std::vector<int>> field1 = (turn ? player2->getField() : player1->getField());
-	std::vector<std::vector<int>> field2 = (turn ? player1->getField() : player2->getField());
-	std::cout << "Player " << turn + 1 << std::endl;
+	std::vector<std::vector<int>> field1;
+	std::vector<std::vector<int>> field2;
+	if (is_there_a_player)
+	{
+		field1 = (turn ? player2->getField() : player1->getField());
+		field2 = (turn ? player1->getField() : player2->getField());
+	}
+	else
+	{
+		field1 = player1->getField();
+		field2 = player2->getField();
+	}
+	std::cout << "Player " << (is_there_a_player ? turn + 1 : 1) << std::endl;
 	fieldPrint(field1, false, point1);
 	std::cout << "\n\n\n";
-	std::cout << "Player " << (turn ? "1" : "2") << std::endl;
+	std::cout << "Player " << (is_there_a_player ? (turn ? "1" : "2") : "2") << std::endl;
 	fieldPrint(field2, fogOfWar, point2);
 }
 

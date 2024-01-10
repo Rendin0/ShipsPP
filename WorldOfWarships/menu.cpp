@@ -8,7 +8,7 @@ int menu(int state)
 	{
 		_getch();
 		system("cls");
-		int key = choice("Choose game mode.", { "Local two players","Local vs Computer","Multiplayer","Exit" });
+		int key = choice("Choose game mode.", { "Local two players","Local vs Computer", "Computer vs Computer","Multiplayer", "Exit"});
 
 		switch (key)
 		{
@@ -18,10 +18,13 @@ int menu(int state)
 		case 1:
 			localVersusComputerGame();
 			return 1;
-		case 2:
+		case 3:
 			multiplayer();
 			return 1;
-		case 3:
+		case 2:
+			computerVersusComputer();
+			return 1;
+		case 4:
 			return 0;
 		default:
 			return 1;

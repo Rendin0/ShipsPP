@@ -1,12 +1,19 @@
 #include "header.h"
 
-void Game::computerAttack()
+void Game::computerAttack(bool& fog_of_war)
 {
+	int false_turn = (is_there_a_player ? 0 : turn);
+
+	std::vector<int> null_point(2, -1);
 	std::vector<int> point(2, 4);
 	system("cls");
-	fieldsPrint(point, { -1, -1 }, true);
+	fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war);
 	bool reverse = false;
 	bool break_point = false;
+
+	Player*& curr_cpu = (false_turn ? player1 : player2);
+	Player*& curr_enemy = (false_turn ? player2 : player1);
+
 	while (!break_point)
 	{
 		Sleep(300);
@@ -14,45 +21,45 @@ void Game::computerAttack()
 
 		std::vector<int> ai_point(2, 4);
 
-		if (!player2->cpu_pointers.empty())
+		if (!curr_cpu->cpu_pointers.empty())
 		{
-			ai_point.at(0) = player2->cpu_pointers.at(player2->cpu_pointers.size() - 1).at(0);
-			ai_point.at(1) = player2->cpu_pointers.at(player2->cpu_pointers.size() - 1).at(1);
+			ai_point.at(0) = curr_cpu->cpu_pointers.at(curr_cpu->cpu_pointers.size() - 1).at(0);
+			ai_point.at(1) = curr_cpu->cpu_pointers.at(curr_cpu->cpu_pointers.size() - 1).at(1);
 
-			if (player2->cpu_dir != -1)
+			if (curr_cpu->cpu_dir != -1)
 			{
 				if (reverse)
 				{
-					if (ai_point.at(!player2->cpu_dir) == 0)
+					if (ai_point.at(!curr_cpu->cpu_dir) == 0)
 					{
-						player2->cpu_pointers.clear();
+						curr_cpu->cpu_pointers.clear();
 						continue;
 					}
 
-					if (player1->getField().at(ai_point.at(0) - (1 * player2->cpu_dir)).at(ai_point.at(1) - (1 * !player2->cpu_dir)) != 3)
+					if (curr_enemy->getField().at(ai_point.at(0) - (1 * curr_cpu->cpu_dir)).at(ai_point.at(1) - (1 * !curr_cpu->cpu_dir)) != 3)
 					{
-						ai_point.at(!player2->cpu_dir)--;
-						player2->cpu_pointers.push_back({ ai_point.at(0), ai_point.at(1) });
+						ai_point.at(!curr_cpu->cpu_dir)--;
+						curr_cpu->cpu_pointers.push_back({ ai_point.at(0), ai_point.at(1) });
 					}
 					else
 					{
-						player2->cpu_pointers.clear();
+						curr_cpu->cpu_pointers.clear();
 						continue;
 					}
 				}
 				else
 				{
-					if (ai_point.at(!player2->cpu_dir) == 9)
+					if (ai_point.at(!curr_cpu->cpu_dir) == 9)
 					{
 						reverse = true;
 						continue;
 					}
 
-					if (player1->getField().at(ai_point.at(0) + (1 * player2->cpu_dir)).at(ai_point.at(1) + (1 * !player2->cpu_dir)) != 3)
+					if (curr_enemy->getField().at(ai_point.at(0) + (1 * curr_cpu->cpu_dir)).at(ai_point.at(1) + (1 * !curr_cpu->cpu_dir)) != 3)
 					{
-						ai_point.at(!player2->cpu_dir)++;
-						if (player1->getField().at(ai_point.at(0)).at(ai_point.at(1)) != 0)
-							player2->cpu_pointers.push_back({ ai_point.at(0), ai_point.at(1) });
+						ai_point.at(!curr_cpu->cpu_dir)++;
+						if (curr_enemy->getField().at(ai_point.at(0)).at(ai_point.at(1)) != 0)
+							curr_cpu->cpu_pointers.push_back({ ai_point.at(0), ai_point.at(1) });
 					}
 					else
 					{
@@ -62,22 +69,22 @@ void Game::computerAttack()
 			}
 			else
 			{
-				if (player2->cpu_pointers.size() > 1)
+				if (curr_cpu->cpu_pointers.size() > 1)
 				{
-					player2->cpu_dir = abs(player2->cpu_pointers.at(0).at(0) - player2->cpu_pointers.at(1).at(0));
+					curr_cpu->cpu_dir = abs(curr_cpu->cpu_pointers.at(0).at(0) - curr_cpu->cpu_pointers.at(1).at(0));
 					continue;
 				}
-				if (ai_point.at(1) < 9 && (player1->getField().at(ai_point.at(0)).at(ai_point.at(1) + 1) != 2 && player1->getField().at(ai_point.at(0)).at(ai_point.at(1) + 1) != 3))
+				if (ai_point.at(1) < 9 && (curr_enemy->getField().at(ai_point.at(0)).at(ai_point.at(1) + 1) != 2 && curr_enemy->getField().at(ai_point.at(0)).at(ai_point.at(1) + 1) != 3))
 					ai_point.at(1)++;
-				else if (ai_point.at(1) > 0 && (player1->getField().at(ai_point.at(0)).at(ai_point.at(1) - 1) != 2 && player1->getField().at(ai_point.at(0)).at(ai_point.at(1) - 1) != 3))
+				else if (ai_point.at(1) > 0 && (curr_enemy->getField().at(ai_point.at(0)).at(ai_point.at(1) - 1) != 2 && curr_enemy->getField().at(ai_point.at(0)).at(ai_point.at(1) - 1) != 3))
 					ai_point.at(1)--;
-				else if (ai_point.at(0) < 9 && (player1->getField().at(ai_point.at(0) + 1).at(ai_point.at(1)) != 2 && player1->getField().at(ai_point.at(0) + 1).at(ai_point.at(1)) != 3))
+				else if (ai_point.at(0) < 9 && (curr_enemy->getField().at(ai_point.at(0) + 1).at(ai_point.at(1)) != 2 && curr_enemy->getField().at(ai_point.at(0) + 1).at(ai_point.at(1)) != 3))
 					ai_point.at(0)++;
-				else if (ai_point.at(0) > 0 && (player1->getField().at(ai_point.at(0) - 1).at(ai_point.at(1)) != 2 && player1->getField().at(ai_point.at(0) - 1).at(ai_point.at(1)) != 3))
+				else if (ai_point.at(0) > 0 && (curr_enemy->getField().at(ai_point.at(0) - 1).at(ai_point.at(1)) != 2 && curr_enemy->getField().at(ai_point.at(0) - 1).at(ai_point.at(1)) != 3))
 					ai_point.at(0)--;
 				else
 				{
-					player2->cpu_pointers.clear();
+					curr_cpu->cpu_pointers.clear();
 					continue;
 				}
 
@@ -85,10 +92,10 @@ void Game::computerAttack()
 		}
 		else
 		{
-			player2->cpu_dir = -1;
+			curr_cpu->cpu_dir = -1;
 			ai_point.at(0) = rand() % 10;
 			ai_point.at(1) = rand() % 10;
-			while (player1->getField().at(ai_point.at(0)).at(ai_point.at(1)) == 2 || player1->getField().at(ai_point.at(0)).at(ai_point.at(1)) == 3)
+			while (curr_enemy->getField().at(ai_point.at(0)).at(ai_point.at(1)) == 2 || curr_enemy->getField().at(ai_point.at(0)).at(ai_point.at(1)) == 3)
 			{
 				ai_point.at(0) = rand() % 10;
 				ai_point.at(1) = rand() % 10;
@@ -103,7 +110,7 @@ void Game::computerAttack()
 			//system("cls");
 			printf("\x1b[H");
 
-			fieldsPrint(point, { -1, -1 }, true);
+			fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war);
 		}
 
 		while (point.at(1) != ai_point.at(1))
@@ -114,42 +121,42 @@ void Game::computerAttack()
 			//system("cls");
 			printf("\x1b[H");
 
-			fieldsPrint(point, { -1, -1 }, true);
+			fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war);
 		}
 
 
 		//system("cls");
 		printf("\x1b[H");
 
-		fieldsPrint(point, { -1, -1 }, true);
+		fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war);
 
 
 
-		std::vector<std::vector<int>> enemy_field = player1->getField();
+		std::vector<std::vector<int>> enemy_field = curr_enemy->getField();
 
 		switch (enemy_field.at(point.at(0)).at(point.at(1)))
 		{
 		case 0:
 			std::thread([]() {PlaySound(L"sounds/miss.wav", NULL, SND_ASYNC); }).join();
 
-			player1->setPoint(point, 3);
+			curr_enemy->setPoint(point, 3);
 			//system("cls");
 			printf("\x1b[H");
 
-			fieldsPrint(point, { -1, -1 }, true);
+			fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war);
 			break_point = true;
 			break;
 		case 1:
 			std::thread([]() {PlaySound(L"sounds/hit.wav", NULL, SND_ASYNC); }).join();
 			Sleep(400);
 
-			player1->setPoint(point, 2);
+			curr_enemy->setPoint(point, 2);
 			//system("cls");
 			printf("\x1b[H");
 
-			player2->cpu_pointers.push_back(point);
+			curr_cpu->cpu_pointers.push_back(point);
 
-			fieldsPrint(point, { -1, -1 }, true);
+			fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war);
 
 			if (getState() > 0)
 			{
@@ -247,11 +254,10 @@ std::vector<std::vector<std::vector<int>>> fieldCreateCpu()
 	return the_answer;
 }
 
-
 int localVersusComputerGame()
 {
 	Game game1(1);
-
+	bool fog_of_war = true;
 	while (true)
 	{
 		game1.attack();
@@ -261,7 +267,8 @@ int localVersusComputerGame()
 			break;
 		}
 
-		game1.computerAttack();
+
+		game1.computerAttack(fog_of_war);
 
 		if (game1.getState() > 0)
 		{
@@ -278,6 +285,40 @@ int localVersusComputerGame()
 	system("cls");
 	game1.fieldsPrint({ -1, -1 }, { -1, -1 }, false);
 	std::cout << "\n\n" << (game1.getState() == 1 ? "Player " : "Computer ") << " wins!" << std::endl;
+	system("pause");
+
+	return game1.getState();
+}
+
+int computerVersusComputer()
+{
+	bool fog_of_war = false;
+
+	Game game1(3);
+
+	while (true)
+	{
+		game1.computerAttack(fog_of_war);
+
+		if (game1.getState() > 0)
+		{
+			break;
+		}
+
+		game1.changeTurn(true);
+
+		game1.computerAttack(fog_of_war);
+
+		if (game1.getState() > 0)
+		{
+			break;
+		}
+		game1.changeTurn(true);
+	}
+
+	system("cls");
+	game1.fieldsPrint({ -1, -1 }, { -1, -1 }, false);
+	std::cout << "\n\n" << (game1.getState() == 1 ? "Computer 1 " : "Computer 2 ") << " wins!" << std::endl;
 	system("pause");
 
 	return game1.getState();
