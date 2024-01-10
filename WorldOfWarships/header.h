@@ -45,7 +45,7 @@ class Game
 	bool is_there_a_player;
 public:
 	Game(int mode);
-	void fieldsPrint(std::vector<int> point1, std::vector<int> point2, const bool fogOfWar);
+	void fieldsPrint(std::vector<int> point1, std::vector<int> point2, const bool fogOfWar2, const bool fogOfWar1);
 	void fieldsPrintOnline(std::vector<int> point, const bool fogOfWar, int _turn);
 	void attack();
 	void attackOnline(SOCKET& connection);

@@ -44,7 +44,7 @@ Game::Game(int mode)
 	turn = 0;
 }
 
-void Game::fieldsPrint(std::vector<int> point1, std::vector<int> point2, const bool fogOfWar)
+void Game::fieldsPrint(std::vector<int> point1, std::vector<int> point2, const bool fogOfWar2, const bool fogOfWar1)
 {
 	std::vector<std::vector<int>> field1;
 	std::vector<std::vector<int>> field2;
@@ -58,11 +58,11 @@ void Game::fieldsPrint(std::vector<int> point1, std::vector<int> point2, const b
 		field1 = player1->getField();
 		field2 = player2->getField();
 	}
-	std::cout << "Player " << (is_there_a_player ? turn + 1 : 1) << std::endl;
-	fieldPrint(field1, false, point1);
-	std::cout << "\n\n\n";
-	std::cout << "Player " << (is_there_a_player ? (turn ? "1" : "2") : "2") << std::endl;
-	fieldPrint(field2, fogOfWar, point2);
+	std::cout << (is_there_a_player ? "Player " : "Computer ") << (is_there_a_player ? turn + 1 : 1) << std::endl;
+	fieldPrint(field1, fogOfWar1, point1);
+	std::cout << "\n" << (is_there_a_player ? "" : "Press F to toggle fog of war") << "\n\n";
+	std::cout << (is_there_a_player ? (turn ? "Player 1" : "Player 2") : "Computer 2") << std::endl;
+	fieldPrint(field2, fogOfWar2, point2);
 }
 
 void Game::attack()
@@ -71,7 +71,7 @@ void Game::attack()
 
 	std::vector<int> point(2, 4);
 	system("cls");
-	fieldsPrint({-1, -1}, point, true);
+	fieldsPrint({-1, -1}, point, true, false);
 
 	bool break_point = false;
 	while (!break_point)
@@ -110,7 +110,7 @@ void Game::attack()
 			//system("cls");
 			printf("\x1b[H");
 
-			fieldsPrint({ -1, -1 }, point, true);
+			fieldsPrint({ -1, -1 }, point, true, false);
 
 			if (key == 13)
 			{
@@ -125,7 +125,7 @@ void Game::attack()
 					//system("cls");
 					printf("\x1b[H");
 
-					fieldsPrint({ -1, -1 }, point, true);
+					fieldsPrint({ -1, -1 }, point, true, false);
 					break_point = true;
 					break;
 				case 1:
@@ -135,7 +135,7 @@ void Game::attack()
 					//system("cls");
 					printf("\x1b[H");
 
-					fieldsPrint({ -1, -1 }, point, true);
+					fieldsPrint({ -1, -1 }, point, true, false);
 
 					if (getState() > 0)
 					{
@@ -311,7 +311,7 @@ int localTwoPlayersGame()
 	std::thread([]() {PlaySound(L"sounds/win.wav", NULL, SND_ASYNC); }).join();
 
 	system("cls");
-	game1.fieldsPrint({ -1, -1 }, {-1, -1}, false);
+	game1.fieldsPrint({ -1, -1 }, {-1, -1}, false, false);
 	std::cout << "\n\nPlayer " << game1.getState() << " wins!" << std::endl;
 	system("pause");
 

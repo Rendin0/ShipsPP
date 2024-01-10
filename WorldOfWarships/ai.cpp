@@ -7,7 +7,7 @@ void Game::computerAttack(bool& fog_of_war)
 	std::vector<int> null_point(2, -1);
 	std::vector<int> point(2, 4);
 	system("cls");
-	fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war);
+	fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war, (is_there_a_player ? false :fog_of_war));
 	bool reverse = false;
 	bool break_point = false;
 
@@ -110,7 +110,7 @@ void Game::computerAttack(bool& fog_of_war)
 			//system("cls");
 			printf("\x1b[H");
 
-			fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war);
+			fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war, (is_there_a_player ? false : fog_of_war));
 		}
 
 		while (point.at(1) != ai_point.at(1))
@@ -121,14 +121,14 @@ void Game::computerAttack(bool& fog_of_war)
 			//system("cls");
 			printf("\x1b[H");
 
-			fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war);
+			fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war, (is_there_a_player ? false : fog_of_war));
 		}
 
 
 		//system("cls");
 		printf("\x1b[H");
 
-		fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war);
+		fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war, (is_there_a_player ? false : fog_of_war));
 
 
 
@@ -143,7 +143,7 @@ void Game::computerAttack(bool& fog_of_war)
 			//system("cls");
 			printf("\x1b[H");
 
-			fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war);
+			fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war, (is_there_a_player ? false : fog_of_war));
 			break_point = true;
 			break;
 		case 1:
@@ -156,7 +156,7 @@ void Game::computerAttack(bool& fog_of_war)
 
 			curr_cpu->cpu_pointers.push_back(point);
 
-			fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war);
+			fieldsPrint((false_turn ? null_point : point), (false_turn ? point : null_point), fog_of_war, (is_there_a_player ? false : fog_of_war));
 
 			if (getState() > 0)
 			{
@@ -283,16 +283,31 @@ int localVersusComputerGame()
 
 
 	system("cls");
-	game1.fieldsPrint({ -1, -1 }, { -1, -1 }, false);
+	game1.fieldsPrint({ -1, -1 }, { -1, -1 }, false, false);
 	std::cout << "\n\n" << (game1.getState() == 1 ? "Player " : "Computer ") << " wins!" << std::endl;
 	system("pause");
 
 	return game1.getState();
 }
 
+void fogOfWarToggle(bool& fog_of_war)
+{
+	while (true)
+	{
+		if (_kbhit())
+		{
+			int key = _getch();
+			if (key == 102)
+				fog_of_war = !fog_of_war;
+		}
+	}
+}
+
 int computerVersusComputer()
 {
-	bool fog_of_war = false;
+	bool fog_of_war = true;
+
+	std::thread tggl(fogOfWarToggle, std::ref(fog_of_war));
 
 	Game game1(3);
 
@@ -302,6 +317,7 @@ int computerVersusComputer()
 
 		if (game1.getState() > 0)
 		{
+			tggl.detach();
 			break;
 		}
 
@@ -311,13 +327,14 @@ int computerVersusComputer()
 
 		if (game1.getState() > 0)
 		{
+			tggl.detach();
 			break;
 		}
 		game1.changeTurn(true);
 	}
 
 	system("cls");
-	game1.fieldsPrint({ -1, -1 }, { -1, -1 }, false);
+	game1.fieldsPrint({ -1, -1 }, { -1, -1 }, false, false);
 	std::cout << "\n\n" << (game1.getState() == 1 ? "Computer 1 " : "Computer 2 ") << " wins!" << std::endl;
 	system("pause");
 
