@@ -41,6 +41,7 @@ int choice(std::string text, std::vector<std::string> str)
 	{
 		std::cout << (i == cho ? "\u001b[44m" : "") << str.at(i) << (i == cho ? "\u001b[0m" : "") << std::endl;
 	}
+	FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 	while (true)
 	{
 		if (_kbhit())

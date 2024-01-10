@@ -46,6 +46,8 @@ void Game::fieldsPrint(std::vector<int> point1, std::vector<int> point2, const b
 
 void Game::attack()
 {
+	FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+
 	std::vector<int> point(2, 4);
 	system("cls");
 	fieldsPrint({-1, -1}, point, true);
@@ -130,6 +132,8 @@ void Game::attack()
 
 void Game::attackOnline(SOCKET& connection)
 {
+	FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
+
 	std::vector<int> point(2, 4);
 	system("cls");
 	fieldsPrintOnline(point, true, turn);

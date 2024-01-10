@@ -104,6 +104,7 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 		std::cout << (i == index ? "\u001b[44m" : "") << host_names.at(i) << (i == index ? "\u001b[0m" : "") << std::endl;
 	}
 
+	FlushConsoleInputBuffer(GetStdHandle(STD_INPUT_HANDLE));
 	while (choosing)
 	{
 		/*if (index >= host_names.size() && !host_names.empty())
