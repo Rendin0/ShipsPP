@@ -12,7 +12,7 @@ int main()
 		Sleep(500);
 		state = !state;
 	}
-	std::cout << "Bye. Have a nice day!";
+	std::cout << "Goodbye.";
 
 	return 0;
 }
