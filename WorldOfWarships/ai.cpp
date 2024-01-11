@@ -307,7 +307,7 @@ void fogOfWarToggle(bool& fog_of_war, Game& game1)
 
 int computerVersusComputer()
 {
-	bool fog_of_war = false;
+	bool fog_of_war = true;
 
 	Game game1(3);
 
