@@ -95,10 +95,20 @@ void Game::computerAttack(bool& fog_of_war)
 			curr_cpu->cpu_dir = -1;
 			ai_point.at(0) = rand() % 10;
 			ai_point.at(1) = rand() % 10;
+			if ((ai_point.at(0) + ai_point.at(1)) % (1 + ((rand() % 10) > 1)) == curr_cpu->cpu_rand_mod)
+			{
+				ai_point.at(0) = (rand() % 10);
+				ai_point.at(1) = (rand() % 10);
+			}
 			while (curr_enemy->getField().at(ai_point.at(0)).at(ai_point.at(1)) == 2 || curr_enemy->getField().at(ai_point.at(0)).at(ai_point.at(1)) == 3)
 			{
-				ai_point.at(0) = rand() % 10;
-				ai_point.at(1) = rand() % 10;
+				ai_point.at(0) = (rand() % 10);
+				ai_point.at(1) = (rand() % 10);
+				if ((ai_point.at(0) + ai_point.at(1)) % (1 + ((rand() % 10) > 1)) == curr_cpu->cpu_rand_mod)
+				{
+					ai_point.at(0) = (rand() % 10);
+					ai_point.at(1) = (rand() % 10);
+				}
 			}
 		}
 
