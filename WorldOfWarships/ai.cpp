@@ -95,7 +95,7 @@ void Game::computerAttack(bool& fog_of_war)
 			curr_cpu->cpu_dir = -1;
 			ai_point.at(0) = rand() % 10;
 			ai_point.at(1) = rand() % 10;
-			if ((ai_point.at(0) + ai_point.at(1)) % (1 + ((rand() % 10) > 1)) == curr_cpu->cpu_rand_mod)
+			if ((ai_point.at(0) + ai_point.at(1)) % (1 + ((rand() % 20) > 1)) == curr_cpu->cpu_rand_mod)
 			{
 				ai_point.at(0) = (rand() % 10);
 				ai_point.at(1) = (rand() % 10);
@@ -104,7 +104,7 @@ void Game::computerAttack(bool& fog_of_war)
 			{
 				ai_point.at(0) = (rand() % 10);
 				ai_point.at(1) = (rand() % 10);
-				if ((ai_point.at(0) + ai_point.at(1)) % (1 + ((rand() % 10) > 1)) == curr_cpu->cpu_rand_mod)
+				if ((ai_point.at(0) + ai_point.at(1)) % (1 + ((rand() % 20) > 1)) == curr_cpu->cpu_rand_mod)
 				{
 					ai_point.at(0) = (rand() % 10);
 					ai_point.at(1) = (rand() % 10);
@@ -178,6 +178,18 @@ void Game::computerAttack(bool& fog_of_war)
 			break;
 		}
 	}
+}
+
+void chucklenuts(Game& game1, std::thread& thr)
+{
+	std::thread([]() {PlaySound(L"sounds/tfc.wav", NULL, SND_ASYNC); }).join();
+	Sleep(1250);
+	system("cls");
+	std::cout << ("\u001b[48;5;15m                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ");
+	Sleep(4500);
+	std::cout << "\u001b[0m";
+	game1.endGame();
+	thr.join();
 }
 
 std::vector<std::vector<std::vector<int>>> fieldCreateCpu()
@@ -319,6 +331,8 @@ int computerVersusComputer()
 {
 	bool fog_of_war = true;
 
+	int random = 1200;
+
 	Game game1(3);
 
 	std::thread tggl(fogOfWarToggle, std::ref(fog_of_war), std::ref(game1));
@@ -332,6 +346,11 @@ int computerVersusComputer()
 			break;
 		}
 
+		if (!(rand() % random))
+		{
+			chucklenuts(game1, tggl);
+			return -1;
+		}
 		game1.changeTurn(true);
 
 		game1.computerAttack(fog_of_war);
@@ -339,6 +358,12 @@ int computerVersusComputer()
 		if (game1.getState() > 0)
 		{
 			break;
+		}
+
+		if (!(rand() % random))
+		{
+			chucklenuts(game1, tggl);
+			return -1;
 		}
 		game1.changeTurn(true);
 	}
