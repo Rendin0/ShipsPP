@@ -19,6 +19,7 @@ class Player
 	std::vector<std::vector<int>> all_ships;
 	std::vector<std::vector<int>> dead_ships;
 public:
+	int cpu_rand_mod;
 	std::vector<std::vector<int>> cpu_pointers;
 	int cpu_dir;
 	Player();

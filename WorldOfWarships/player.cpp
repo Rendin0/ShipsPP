@@ -14,6 +14,7 @@ Player::Player()
 	{
 		dead_ships.at(i).push_back(all_ships.at(i).at(0));
 	}
+	cpu_rand_mod = rand() % 2;
 }
 
 Player::Player(std::vector<std::vector<int>> _field, std::vector<std::vector<int>> _all_ships, std::vector<std::vector<int>> _dead_ships)
@@ -21,6 +22,7 @@ Player::Player(std::vector<std::vector<int>> _field, std::vector<std::vector<int
 	field = _field;
 	all_ships = _all_ships;
 	dead_ships = _dead_ships;
+	cpu_rand_mod = rand() % 2;
 }
 
 Player::Player(int param)
@@ -55,6 +57,7 @@ Player::Player(int param)
 		break;
 	}
 	}
+	cpu_rand_mod = rand() % 2;
 }
 
 std::vector<std::vector<std::vector<int>>> fieldCreate()
@@ -311,6 +314,8 @@ void fieldPrint(std::vector<std::vector<int>> field, const bool fogOfWar, std::v
 	{
 		for (size_t j = 0; j < field.at(i).size(); j++)
 		{
+			/*if ((i + j) % 2)
+				printf("\u001b[48;5;235m");*/
 			if (i == point.at(0) && j == point.at(1))
 				printf("\u001b[48;5;88m");
 			switch (field.at(i).at(j))
@@ -333,6 +338,8 @@ void fieldPrint(std::vector<std::vector<int>> field, const bool fogOfWar, std::v
 			}
 			if (i == point.at(0) && j == point.at(1))
 				printf("\u001b[40m");
+			/*if ((i + j) % 2)
+				printf("\u001b[40m");*/
 
 			std::cout << " ";
 		}
