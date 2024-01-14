@@ -44,6 +44,12 @@ Game::Game(int mode)
 	turn = 0;
 }
 
+void Game::endGame()
+{
+	std::vector<std::vector<int>> all(10, std::vector<int>(10, 3));
+	player1->setAll(all, all, all);
+}
+
 void Game::fieldsPrint(std::vector<int> point1, std::vector<int> point2, const bool fogOfWar2, const bool fogOfWar1)
 {
 	std::vector<std::vector<int>> field1;

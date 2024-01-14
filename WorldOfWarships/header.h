@@ -50,6 +50,7 @@ public:
 	void fieldsPrintOnline(std::vector<int> point, const bool fogOfWar, int _turn);
 	void attack();
 	void attackOnline(SOCKET& connection);
+	void endGame();
 	void computerAttack(bool& fog_of_war);
 	int getState();
 	void changeTurn(bool online);
