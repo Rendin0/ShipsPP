@@ -74,13 +74,13 @@ void Game::computerAttack(bool& fog_of_war)
 					curr_cpu->cpu_dir = abs(curr_cpu->cpu_pointers.at(0).at(0) - curr_cpu->cpu_pointers.at(1).at(0));
 					continue;
 				}
-				if (ai_point.at(1) < 9 && (/*curr_enemy->getField().at(ai_point.at(0)).at(ai_point.at(1) + 1) != 2 &&*/ curr_enemy->getField().at(ai_point.at(0)).at(ai_point.at(1) + 1) != 3))
+				if (ai_point.at(1) < 9 && (curr_enemy->getField().at(ai_point.at(0)).at(ai_point.at(1) + 1) != 2 && curr_enemy->getField().at(ai_point.at(0)).at(ai_point.at(1) + 1) != 3))
 					ai_point.at(1)++;
-				else if (ai_point.at(1) > 0 && (/*curr_enemy->getField().at(ai_point.at(0)).at(ai_point.at(1) - 1) != 2 &&*/ curr_enemy->getField().at(ai_point.at(0)).at(ai_point.at(1) - 1) != 3))
+				else if (ai_point.at(1) > 0 && (curr_enemy->getField().at(ai_point.at(0)).at(ai_point.at(1) - 1) != 2 && curr_enemy->getField().at(ai_point.at(0)).at(ai_point.at(1) - 1) != 3))
 					ai_point.at(1)--;
-				else if (ai_point.at(0) < 9 && (/*curr_enemy->getField().at(ai_point.at(0) + 1).at(ai_point.at(1)) != 2 &&*/ curr_enemy->getField().at(ai_point.at(0) + 1).at(ai_point.at(1)) != 3))
+				else if (ai_point.at(0) < 9 && (curr_enemy->getField().at(ai_point.at(0) + 1).at(ai_point.at(1)) != 2 && curr_enemy->getField().at(ai_point.at(0) + 1).at(ai_point.at(1)) != 3))
 					ai_point.at(0)++;
-				else if (ai_point.at(0) > 0 && (/*curr_enemy->getField().at(ai_point.at(0) - 1).at(ai_point.at(1)) != 2 &&*/ curr_enemy->getField().at(ai_point.at(0) - 1).at(ai_point.at(1)) != 3))
+				else if (ai_point.at(0) > 0 && (curr_enemy->getField().at(ai_point.at(0) - 1).at(ai_point.at(1)) != 2 && curr_enemy->getField().at(ai_point.at(0) - 1).at(ai_point.at(1)) != 3))
 					ai_point.at(0)--;
 				else
 				{

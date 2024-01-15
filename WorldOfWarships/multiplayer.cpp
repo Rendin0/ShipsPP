@@ -352,6 +352,8 @@ int client()
 
 	std::thread strtpRcv(startupRecv, std::ref(game1), std::ref(client_socket), std::ref(is_func_ended), need_plr);
 
+	Sleep(100);
+
 	game1 = new Game(2);
 	game1->setPlayer(1, true);
 
