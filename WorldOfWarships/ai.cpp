@@ -201,7 +201,7 @@ std::vector<std::vector<std::vector<int>>> fieldCreateCpu()
 	std::vector<std::vector<std::vector<int>>> the_answer(2);
 	std::vector<std::vector<int>> field(10, std::vector<int>(10, 0));
 	std::vector<std::vector<int>> tmp_field(10, std::vector<int>(10, 0));
-	const std::vector<int> ships{ 4, 4, 4, 4, 4};
+	const std::vector<int> ships{ 4, 3, 3, 2, 2, 2, 1, 1, 1, 1};
 
 	for (const auto i : ships)
 	{
