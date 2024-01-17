@@ -42,4 +42,27 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="sounds\lose.wav">
+      <Filter>Файлы ресурсов</Filter>
+    </Media>
+    <Media Include="sounds\miss.wav">
+      <Filter>Файлы ресурсов</Filter>
+    </Media>
+    <Media Include="sounds\move.wav">
+      <Filter>Файлы ресурсов</Filter>
+    </Media>
+    <Media Include="sounds\tfc.wav">
+      <Filter>Файлы ресурсов</Filter>
+    </Media>
+    <Media Include="sounds\win.wav">
+      <Filter>Файлы ресурсов</Filter>
+    </Media>
+    <Media Include="sounds\confirm.wav">
+      <Filter>Файлы ресурсов</Filter>
+    </Media>
+    <Media Include="sounds\hit.wav">
+      <Filter>Файлы ресурсов</Filter>
+    </Media>
+  </ItemGroup>
 </Project>

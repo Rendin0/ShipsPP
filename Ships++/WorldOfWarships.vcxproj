@@ -151,6 +151,15 @@
   <ItemGroup>
     <ClInclude Include="header.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="sounds\confirm.wav" />
+    <Media Include="sounds\hit.wav" />
+    <Media Include="sounds\lose.wav" />
+    <Media Include="sounds\miss.wav" />
+    <Media Include="sounds\move.wav" />
+    <Media Include="sounds\tfc.wav" />
+    <Media Include="sounds\win.wav" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
