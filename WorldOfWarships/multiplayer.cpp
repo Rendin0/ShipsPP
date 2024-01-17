@@ -1,5 +1,25 @@
 #include "header.h"
 
+void exitHandler(SOCKET& sock1, SOCKET& sock2, SOCKET& sock3)
+{
+	while (true)
+	{
+		if (_kbhit())
+		{
+			int key = _getch();
+
+			if (key == 27)
+			{
+				closesocket(sock2);
+				closesocket(sock3);
+				closesocket(sock1);
+				WSACleanup();
+				break;
+			}
+		}
+	}
+}
+
 std::vector<std::string> getBroadcastAddresses();
 
 void startupRecv(Game*& game1, SOCKET& connection, int& is_func_ended, int need_plr)
@@ -85,7 +105,7 @@ void serverChoiceRecv(std::vector<sockaddr_in>& servers, std::vector<std::string
 }
 
 void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& choosing, SOCKET& broadcast_socket, std::vector<sockaddr_in>& broadcasts, std::vector<sockaddr_in>& servers,
-	SOCKET& main_socket, bool& connected)
+	SOCKET& main_socket, bool& connected, bool& exited)
 {
 	sockaddr_in direct;
 	ZeroMemory(&direct, sizeof(direct));
@@ -98,7 +118,7 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 	for (size_t i = 0; i < broadcasts.size(); i++)
 		sendto(broadcast_socket, msg, sizeof(msg), NULL, (sockaddr*)&broadcasts.at(i), sizeof(broadcasts.at(i)));
 
-	std::cout << "Servers (R to reload, F to direct connect): " << std::endl << std::endl;
+	std::cout << "Servers (R to reload, F to direct connect, Esc to exit): " << std::endl << std::endl;
 	for (size_t i = 0; i < host_names.size(); i++)
 	{
 		std::cout << (i == index ? "\u001b[44m" : "") << host_names.at(i) << (i == index ? "\u001b[0m" : "") << std::endl;
@@ -111,7 +131,7 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 		{
 			system("cls");
 			index = host_names.size() - 1;
-			std::cout << "Servers (R to reload, F to direct connect): " << std::endl << std::endl;
+			std::cout << "Servers (R to reload, F to direct connect, Esc to exit): " << std::endl << std::endl;
 			for (size_t i = 0; i < host_names.size(); i++)
 			{
 				std::cout << (i == index ? "\u001b[44m" : "") << host_names.at(i) << (i == index ? "\u001b[0m" : "") << std::endl;
@@ -119,7 +139,7 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 		}*/
 		//system("cls");
 		printf("\x1b[H");
-		std::cout << "Servers (R to reload, F to direct connect): " << std::endl << std::endl;
+		std::cout << "Servers (R to reload, F to direct connect, Esc to exit): " << std::endl << std::endl;
 		for (size_t i = 0; i < host_names.size(); i++)
 		{
 			std::cout << (i == index ? "\u001b[44m" : "") << host_names.at(i) << (i == index ? "\u001b[0m" : "") << std::endl;
@@ -129,6 +149,12 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 			int key = _getch();
 			switch (key)
 			{
+			case 27:
+			{
+				choosing = false;
+				exited = true;
+				return;
+			}
 			case 72:
 			{
 				if (!host_names.empty())
@@ -161,7 +187,7 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 			case 114:
 			{
 				system("cls");
-				std::cout << "Servers (R to reload, F to direct connect): " << std::endl << std::endl;
+				std::cout << "Servers (R to reload, F to direct connect, Esc to exit): " << std::endl << std::endl;
 				index = 0;
 				host_names.clear();
 				servers.clear();
@@ -217,7 +243,7 @@ void serverChoiceMenu(std::vector<std::string>& host_names, int& index, bool& ch
 	}
 }
 
-sockaddr_in serverChoice(SOCKET& main_socket, bool& connected)
+sockaddr_in serverChoice(SOCKET& main_socket, bool& connected, bool& exited)
 {
 	SOCKET broadcast_socket = socket(AF_INET, SOCK_DGRAM, NULL);
 	if (broadcast_socket == INVALID_SOCKET)
@@ -280,11 +306,16 @@ sockaddr_in serverChoice(SOCKET& main_socket, bool& connected)
 
 	std::thread srvchrecv(serverChoiceRecv, std::ref(servers), std::ref(host_names), std::ref(broadcast_socket), std::ref(choosing));
 
-	serverChoiceMenu(host_names, index, choosing, broadcast_socket, broadcasts_infos, servers, main_socket, connected);
+	serverChoiceMenu(host_names, index, choosing, broadcast_socket, broadcasts_infos, servers, main_socket, connected, exited);
 
 	srvchrecv.detach();
 
 	closesocket(broadcast_socket);
+
+	if (exited)
+	{
+		return isocket_info;
+	}
 
 	return servers.at(index);
 }
@@ -330,8 +361,17 @@ int client()
 		return 1;
 	}
 
-	sockaddr_in server_info = serverChoice(client_socket, connected);
+	bool exited = false;
+
+	sockaddr_in server_info = serverChoice(client_socket, connected, exited);
 	server_info.sin_port = htons(2345);
+
+	if (exited)
+	{
+		closesocket(client_socket);
+		WSACleanup();
+		return 1;
+	}
 
 	if (!connected)
 	{
@@ -455,17 +495,25 @@ int server()
 	std::thread cnnctrecv(connectionReciver, std::ref(host_name), std::ref(broadcast_socket), std::ref(connected));
 
 	system("cls");
-	std::cout << "Waiting for client to connect..." << std::endl;
+	std::cout << "Waiting for client to connect (Esc to exit)..." << std::endl;
 
 	sockaddr_in client_info;
 	ZeroMemory(&client_info, sizeof(client_info));
 
 	int client_info_size = sizeof(client_info);
 
-	SOCKET client_connection = accept(server_socket, (sockaddr*)&client_info, &client_info_size);
+	SOCKET client_connection;
+
+	std::thread exthndl(exitHandler, std::ref(server_socket), std::ref(client_connection), std::ref(broadcast_socket));
+
+	client_connection = accept(server_socket, (sockaddr*)&client_info, &client_info_size);
+
+	exthndl.join();
+	cnnctrecv.detach();
+
 	if (client_connection == INVALID_SOCKET)
 	{
-		std::cout << "Client detected, but can't connect to a client. Error # " << WSAGetLastError() << std::endl;
+		//std::cout << "Client detected, but can't connect to a client. Error # " << WSAGetLastError() << std::endl;
 		closesocket(server_socket);
 		closesocket(broadcast_socket);
 		closesocket(client_connection);
@@ -474,7 +522,6 @@ int server()
 	}
 	connected = true;
 
-	cnnctrecv.detach();
 	closesocket(broadcast_socket);
 	system("cls");
 
@@ -564,7 +611,7 @@ int multiplayer()
 {
 	Game* game1 = nullptr;
 
-	int key = choice("Choose multiplayer mode", { "Host", "Client" });
+	int key = choice("Choose multiplayer mode", { "Host", "Client", "Back" });
 	system("cls");
 	switch (key)
 	{
@@ -583,6 +630,10 @@ int multiplayer()
 		client();
 
 		break;
+	}
+	case 2:
+	{
+		return 0;
 	}
 	default:
 		break;
