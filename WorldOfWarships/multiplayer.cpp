@@ -508,7 +508,7 @@ int server()
 
 	client_connection = accept(server_socket, (sockaddr*)&client_info, &client_info_size);
 
-	exthndl.join();
+	exthndl.detach();
 	cnnctrecv.detach();
 
 	if (client_connection == INVALID_SOCKET)
