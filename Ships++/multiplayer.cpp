@@ -1,8 +1,8 @@
 #include "header.h"
 
-void exitHandler(SOCKET& sock1, SOCKET& sock2, SOCKET& sock3)
+void exitHandler(SOCKET& sock1, SOCKET& sock2, SOCKET& sock3, bool& break_point)
 {
-	while (true)
+	while (break_point)
 	{
 		if (_kbhit())
 		{
@@ -15,6 +15,10 @@ void exitHandler(SOCKET& sock1, SOCKET& sock2, SOCKET& sock3)
 				closesocket(sock1);
 				WSACleanup();
 				break;
+			}
+			else
+			{
+				continue;
 			}
 		}
 	}
@@ -503,12 +507,13 @@ int server()
 	int client_info_size = sizeof(client_info);
 
 	SOCKET client_connection;
+	bool break_point = true;
 
-	std::thread exthndl(exitHandler, std::ref(server_socket), std::ref(client_connection), std::ref(broadcast_socket));
+	std::thread exthndl(exitHandler, std::ref(server_socket), std::ref(client_connection), std::ref(broadcast_socket), std::ref(break_point));
 
 	client_connection = accept(server_socket, (sockaddr*)&client_info, &client_info_size);
-
-	exthndl.detach();
+	break_point = false;
+	exthndl.join();
 	cnnctrecv.detach();
 
 	if (client_connection == INVALID_SOCKET)
